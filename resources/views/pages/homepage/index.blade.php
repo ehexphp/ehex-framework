@@ -21,7 +21,7 @@
                         </div>
 
                         <p class="text-muted">ex v{{ framework_info()['version'] }}<br/>Ehex, your most friendly and powerful framework is<br/>up  and running. Modify your app settings accordingly<br/> in .config.php file. Then try <a href="{{ url('/?db_help') }}" class="text-info">Db Help</a>.</p>
-                        <p><a target="_blank"  rel="noopener" class="btn btn-primary" href="https://ehex.github.io/ehex-docs" role="button">View Documentation &raquo;</a></p>
+                        <p><a target="_blank"  rel="noopener" class="btn btn-primary" href="https://github.com/ehexphp/ehex-docs" role="button">View Documentation &raquo;</a></p>
                     </div>
                 </div>
             </div>
