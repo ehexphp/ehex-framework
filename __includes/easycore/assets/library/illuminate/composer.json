@@ -1,0 +1,13 @@
+{
+
+	"repositories": [
+      {
+        "type": "composer",
+        "url": "https://packagist.org"
+      },
+      { "packagist": false }
+    ],
+	"require": {
+		"illuminate/database": "^5.7"
+	}
+}

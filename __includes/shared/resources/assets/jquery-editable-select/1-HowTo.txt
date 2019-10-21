@@ -1,0 +1,10 @@
+
+
+    {{-- Edittable --}}
+    <link rel="stylesheet" href="{{ layout_asset('/jquery-editable-select/jquery-editable-select.min.css') }}" />
+    <script src="{{ layout_asset('/jquery-editable-select/jquery-editable-select.min.js') }} "></script>
+    <script>
+        $('.editable-select').editableSelect({
+            filter: false   // filter because i need it to be showing all every time i clicked because of READONLY Attrib of my select
+        });
+    </script>

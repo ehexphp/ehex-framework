@@ -1,0 +1,6 @@
+{
+    "require": {
+        "stripe/stripe-php": "^6.6",
+        "overtrue/socialite": "^2.0"
+    }
+}
