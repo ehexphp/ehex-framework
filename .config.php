@@ -4,7 +4,7 @@
  *
  * Name : Ehex Framework
  * Description : Very Smart, Clean and Comprehensive Framework
- * Documentation : https://ehex.xamtax.com/,     GitHub : https://github.com/ehex/ehex-framework
+ * Documentation : https://ehex.xamtax.com/,     GitHub : https://github.com/ehexphp/ehex-framework
  * Author :  Samson Iyanu (https://xamtax.com),     E-Mail : samsoniyanu@hotmail.com
  * Version : version 1.5.0
  *

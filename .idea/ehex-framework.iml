@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<module type="WEB_MODULE" version="4">
+  <component name="NewModuleRootManager">
+    <content url="file://$MODULE_DIR$">
+      <excludeFolder url="file://$MODULE_DIR$/__includes/vendor/composer" />
+      <excludeFolder url="file://$MODULE_DIR$/__includes/vendor/guzzlehttp/guzzle" />
+      <excludeFolder url="file://$MODULE_DIR$/__includes/vendor/guzzlehttp/promises" />
+      <excludeFolder url="file://$MODULE_DIR$/__includes/vendor/guzzlehttp/psr7" />
+      <excludeFolder url="file://$MODULE_DIR$/__includes/vendor/overtrue/socialite" />
+      <excludeFolder url="file://$MODULE_DIR$/__includes/vendor/psr/http-message" />
+      <excludeFolder url="file://$MODULE_DIR$/__includes/vendor/ralouphie/getallheaders" />
+      <excludeFolder url="file://$MODULE_DIR$/__includes/vendor/stripe/stripe-php" />
+      <excludeFolder url="file://$MODULE_DIR$/__includes/vendor/symfony/http-foundation" />
+      <excludeFolder url="file://$MODULE_DIR$/__includes/vendor/symfony/polyfill-mbstring" />
+    </content>
+    <orderEntry type="inheritedJdk" />
+    <orderEntry type="sourceFolder" forTests="false" />
+    <orderEntry type="module" module-name="easytax-docs" />
+  </component>
+</module>

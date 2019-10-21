@@ -981,7 +981,7 @@ class Validation1{
 
     /**
      * Validate Form
-     * [Read more on Form Validation](https://ehex.github.io/ehex-docs/#/BasicUsage#Quick%20Form%20validation)
+     * [Read more on Form Validation](https://ehexphp.github.io/ehex-docs/#/BasicUsage#Quick%20Form%20validation)
      * @param null $request  e.g $_POST + $_FILES
      *
      * @param array $rules [

@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="PhpIncludePathManager">
+    <include_path>
+      <path value="$PROJECT_DIR$/__includes/vendor/ralouphie/getallheaders" />
+      <path value="$PROJECT_DIR$/__includes/vendor/stripe/stripe-php" />
+      <path value="$PROJECT_DIR$/__includes/vendor/psr/http-message" />
+      <path value="$PROJECT_DIR$/__includes/vendor/symfony/http-foundation" />
+      <path value="$PROJECT_DIR$/__includes/vendor/symfony/polyfill-mbstring" />
+      <path value="$PROJECT_DIR$/__includes/vendor/guzzlehttp/promises" />
+      <path value="$PROJECT_DIR$/__includes/vendor/guzzlehttp/psr7" />
+      <path value="$PROJECT_DIR$/__includes/vendor/overtrue/socialite" />
+      <path value="$PROJECT_DIR$/__includes/vendor/guzzlehttp/guzzle" />
+      <path value="$PROJECT_DIR$/__includes/vendor/composer" />
+    </include_path>
+  </component>
+</project>

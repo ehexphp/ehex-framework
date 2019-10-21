@@ -348,7 +348,7 @@ class Inbox extends Model1 implements Model1ActionInterface {
     /**
      * Model Route List
      * for quick implementation visit
-     * @see https://ehex.github.io/ehex-docs/#/BasicUsage?id=model-route-and-menu
+     * @see https://ehexphp.github.io/ehex-docs/#/BasicUsage?id=model-route-and-menu
      * @param exRoute1 $route
      */
     static function onRoute($route){
@@ -358,7 +358,7 @@ class Inbox extends Model1 implements Model1ActionInterface {
     /**
      * Save  Model Information
      * for quick implementation visit
-     * @see https://ehex.github.io/ehex-docs/#/BasicUsage?id=model-process-save
+     * @see https://ehexphp.github.io/ehex-docs/#/BasicUsage?id=model-process-save
      * @param $id
      */
     static function processSave($id = null){

@@ -484,7 +484,7 @@ interface Model1ActionInterface{
     /**
      * Dashboard Menu.
      * for quick implementation visit
-     * @see https://ehex.github.io/ehex-docs/#/BasicUsage?id=model-dashboard
+     * @see http://bit.ly/ehex-md
      * @return array
      */
     static function getDashboard();
@@ -492,7 +492,7 @@ interface Model1ActionInterface{
     /**
      * Manage model with HtmlForm1 or xcrud.
      * for quick implementation visit
-     * @see https://ehex.github.io/ehex-docs/#/BasicUsage?id=model-manage
+     * @see http://bit.ly/ehex-mm
      * @return mixed|Xcrud|HtmlForm1
      */
     static function manage();
@@ -501,7 +501,7 @@ interface Model1ActionInterface{
     /**
      * Model Sidebar menu list.
      * for quick implementation visit
-     * @see https://ehex.github.io/ehex-docs/#/BasicUsage?id=model-route-and-menu
+     * @see http://bit.ly/ehex-mr
      * @return mixed|array
      */
     static function getMenuList();
@@ -509,7 +509,7 @@ interface Model1ActionInterface{
     /**
      * Model Route List
      * for quick implementation visit
-     * @see https://ehex.github.io/ehex-docs/#/BasicUsage?id=model-route-and-menu
+     * @see http://bit.ly/ehex-mr
      * @param exRoute1 $route
      */
     static function onRoute($route);
@@ -518,7 +518,7 @@ interface Model1ActionInterface{
     /**
      * Save  Model Information
      * for quick implementation visit
-     * @see https://ehex.github.io/ehex-docs/#/BasicUsage?id=model-process-save
+     * @see http://bit.ly/ehex-ps
      * @param $id
      */
     static function processSave($id = null);
@@ -627,7 +627,7 @@ abstract class Model1 extends Controller1 {
      *      $COLUMN_SQL_PROPERTY_LIST = [  'id'=>'INTEGER  NULL DEFAULT 110',  'fullName'=>'TEXT  NULL', ... ]
      *  OR in Debug Mode with
      *      Model1::createTable( ['id'=>'INTEGER  NULL DEFAULT 110 '], .... )
-     * @see https://ehex.github.io/ehex-docs/#/Model%20and%20Database?id=manual-sql-property-set for more information
+     * @see https://ehexphp.github.io/ehex-docs/#/Model%20and%20Database?id=manual-sql-property-set for more information
      */
     public static $COLUMN_SQL_CREATE_PROPERTY = [];
 
