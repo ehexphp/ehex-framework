@@ -1,1 +1,4 @@
 __includes/
+resources/cache/database/*
+resources/cache/file_session/*
+resources/cache/views/*
