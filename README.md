@@ -70,16 +70,15 @@ We would have love to make it work on lower version as well, but we strongly adv
 > Please see the license agreement. [License](https://github.com/ehexphp/ehex-framework/blob/master/LICENSE)
 
 ## Resources
-- [User Guide](/) - Not Available Yet
-- [Language File Translations](/) - Not Available Yet
+- [User Guide](/) - Available
+- [Language File Translations](/) - Available
 - [Community Forums](/) - Not Available Yet
 - [Community Wiki](/) - Not Available Yet
 - [Community Slack Channel](/) - Not Available Yet
 - Report security issues to our Security Panel or via our page on [HackerOne](https://hackerone.com/ehex), thank you.
 
 ## Acknowledgement
-The Ehex creator (Samson Iyanu) would like to thank all the Ehex contributors and you, the Ehex user.
-
+The Ehex creator ([Samson Oyetola](https://github.com/samtax01)) would like to thank all the Ehex contributors and you, the Ehex user.
 
 
 
