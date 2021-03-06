@@ -14,7 +14,7 @@
                 <h4><a href="{!! routes()->index !!}" class="back"><i class="fa fa-home"></i></a> Forgot Password <hr/> </h4>
                 {!! HtmlForm1::addInput('Email / Username', ['placeholder'=>'Your email', 'name'=>"user_name", 'required']) !!}
 
-                <div style="margin:15px 0 10px 0;" class="clearfix"><span class="pull-right"> <small>I have Access token,</small> <a href="{{ routes()->reset_password }}">Reset Password</a></span></div>
+                <div style="margin:15px 0 10px 0;" class="clearfix"><span class="pull-right"> <small>I have Access token,</small> <a href="{{ routes()->reset_password }}" up-target="main">Reset Password</a></span></div>
                 {!! HtmlForm1::close('Send Mail', ['class'=>'btn btn-block btn-primary']) !!}
             </div>
         </div>

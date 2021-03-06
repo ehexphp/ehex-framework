@@ -16,9 +16,9 @@
                 {!! HtmlForm1::addInput('Password', ['name'=>"password", 'type'=>'password', 'toggle'=>'true', ""]) !!}
 
                 <div  style="margin:15px 0 10px 0;" class="clearfix">
-                    <a href="{{ routes()->register }}" class="pull-right"> Register </a>
+                    <a href="{{ routes()->register }}" up-target="main" class="pull-right"> Register </a>
                     <span class="pull-right"> &nbsp;&nbsp;|&nbsp;&nbsp; </span>
-                    <a href="{{ routes()->forgot_password }}" class="pull-right"> Forgot your password? </a>
+                    <a href="{{ routes()->forgot_password }}" up-target="main" class="pull-right"> Forgot your password? </a>
                 </div>
 
                 {!! HtmlForm1::close('Login', ['class'=>'btn btn-block btn-primary']) !!}

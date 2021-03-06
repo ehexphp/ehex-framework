@@ -14,7 +14,7 @@
  *  Whoop Error Config
  *  https://github.com/filp/whoops
  ************************************************/
-if(Config1::DEBUG_MODE && $exConfig['enable_whoop']){
+if(is_debug_mode() && $exConfig['enable_whoop']){
     FileManager1::loadComposerPackage(PATH_LIBRARY."whoops");
     $whoops = new \Whoops\Run;
     $handler = new Whoops\Handler\PrettyPageHandler;

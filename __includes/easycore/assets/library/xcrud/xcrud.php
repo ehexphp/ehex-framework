@@ -16,7 +16,7 @@ require (XCRUD_PATH . '/xcrud_config.php'); // configuration
 require (XCRUD_PATH . '/xcrud_db.php'); // __FILE_BASE class
 mb_internal_encoding(Xcrud_config::$mbencoding); // sets multibyte encoding globaly
 date_default_timezone_set(@date_default_timezone_get()); // xcrud code not depends on timezone, but this can fix some warnings
-if (get_magic_quotes_runtime()) { set_magic_quotes_runtime(0); }
+if (  ini_set('magic_quotes_runtime', 0) /*get_magic_quotes_runtime()*/) {  ini_set('magic_quotes_runtime', 0); /*set_magic_quotes_runtime(0);*/ }
 
 
 
@@ -2291,7 +2291,7 @@ class Xcrud {
     {
         if (isset($_POST['xcrud'][$field]))
         {
-            if (get_magic_quotes_gpc())
+            if (phpversion() < "5.3" && get_magic_quotes_gpc())
             {
                 if (is_array($_POST['xcrud'][$field]))
                 {
@@ -2356,7 +2356,7 @@ class Xcrud {
     {
         if (isset($_GET['xcrud'][$field]))
         {
-            if (get_magic_quotes_gpc())
+            if (phpversion() < "5.3" && get_magic_quotes_gpc())
             {
                 if (is_array($_GET['xcrud'][$field]))
                 {

@@ -140,14 +140,14 @@ if(defined("Config1::DB_DRIVER")) if (!( include(PATH_INCLUDE . 'config/database
      * @return mixed
      */
     public static function errorHandlerAndSolution($errorText = null){
-        $errorText =  $errorText?? DbAdapter1::getLastErrorMessage(static::$DB_HANDLER);
-        if(!Config1::DEBUG_MODE) die(Console1::println("EXDB001 Error Occured, please enable debug mode to view more"));
+        $errorText =  $errorText? $errorText:  DbAdapter1::getLastErrorMessage(static::$DB_HANDLER);
+        if(!is_debug_mode()) die(Console1::println("EXDB001 Error Occured, please enable debug mode to view more"));
         $suggestion = '';
 
         $runLink = function($modelClassName, $functionName){
             return "<li>
                         <hr/>".exForm1::makeRunnableForm($modelClassName, $functionName)
-                        ."<a href='".Form1::callController($modelClassName, $functionName).'?token='.token()."'> Run </a>
+                        ."<a href='".Form1::callController($modelClassName, $functionName).'?_token='.token()."'> Run </a>
                     </li>";
         };
 
@@ -412,7 +412,7 @@ interface Controller1RouteInterface{
      * Access with url('/{model}/')
      * @return mixed
      */
-    static function  getIndexView();
+    static function  index();
 
     /**
      * View Search Model
@@ -420,7 +420,7 @@ interface Controller1RouteInterface{
      * @param $text
      * @return mixed
      */
-    //static function  getSearchView($text = '');
+    //static function  search($text = '');
 
     /**
      * Return Show View interface
@@ -428,14 +428,14 @@ interface Controller1RouteInterface{
      * @param $id
      * @return mixed
      */
-    static function  getShowView($id);
+    static function  show($id);
 
     /**
      * Return Manage View interface
      * Access with url('/{model}/manage')
      * @return mixed
      */
-    static function  getManageView();
+    static function  manage();
 
     /**
      * Return Edit View interface
@@ -443,14 +443,14 @@ interface Controller1RouteInterface{
      * @param $id
      * @return mixed
      */
-    static function  getEditView($id);
+    static function  edit($id);
 
     /**
      * Return Create View interface
      * Access with url('/{model}/create')
      * @return mixed
      */
-    static function  getCreateView();
+    static function  create();
 
 
     /**
@@ -484,7 +484,7 @@ interface Model1ActionInterface{
     /**
      * Dashboard Menu.
      * for quick implementation visit
-     * @see http://bit.ly/ehex-md
+     * @see https://ehex.github.io/ehex-docs/#/BasicUsage?id=model-dashboard
      * @return array
      */
     static function getDashboard();
@@ -492,7 +492,7 @@ interface Model1ActionInterface{
     /**
      * Manage model with HtmlForm1 or xcrud.
      * for quick implementation visit
-     * @see http://bit.ly/ehex-mm
+     * @see https://ehex.github.io/ehex-docs/#/BasicUsage?id=model-manage
      * @return mixed|Xcrud|HtmlForm1
      */
     static function manage();
@@ -501,7 +501,7 @@ interface Model1ActionInterface{
     /**
      * Model Sidebar menu list.
      * for quick implementation visit
-     * @see http://bit.ly/ehex-mr
+     * @see https://ehex.github.io/ehex-docs/#/BasicUsage?id=model-route-and-menu
      * @return mixed|array
      */
     static function getMenuList();
@@ -509,7 +509,7 @@ interface Model1ActionInterface{
     /**
      * Model Route List
      * for quick implementation visit
-     * @see http://bit.ly/ehex-mr
+     * @see https://ehex.github.io/ehex-docs/#/BasicUsage?id=model-route-and-menu
      * @param exRoute1 $route
      */
     static function onRoute($route);
@@ -518,7 +518,7 @@ interface Model1ActionInterface{
     /**
      * Save  Model Information
      * for quick implementation visit
-     * @see http://bit.ly/ehex-ps
+     * @see https://ehex.github.io/ehex-docs/#/BasicUsage?id=model-process-save
      * @param $id
      */
     static function processSave($id = null);
@@ -627,7 +627,7 @@ abstract class Model1 extends Controller1 {
      *      $COLUMN_SQL_PROPERTY_LIST = [  'id'=>'INTEGER  NULL DEFAULT 110',  'fullName'=>'TEXT  NULL', ... ]
      *  OR in Debug Mode with
      *      Model1::createTable( ['id'=>'INTEGER  NULL DEFAULT 110 '], .... )
-     * @see https://ehexphp.github.io/ehex-docs/#/Model%20and%20Database?id=manual-sql-property-set for more information
+     * @see https://ehex.github.io/ehex-docs/#/Model%20and%20Database?id=manual-sql-property-set for more information
      */
     public static $COLUMN_SQL_CREATE_PROPERTY = [];
 
@@ -722,7 +722,7 @@ abstract class Model1 extends Controller1 {
         if(isset(static::$TABLE_NAME) && !empty(static::$TABLE_NAME)) return static::$TABLE_NAME;
         $convertToSnakeCase = function($value){ return $word = preg_replace_callback("/(^|[a-z])([A-Z])/", function($m) { return strtolower(strlen($m[1]) ? "$m[1]_$m[2]" : "$m[2]"); }, $value); };
         $pluralize = function($singular) { return String1::pluralize($singular); };
-        return strtolower($convertToSnakeCase( $pluralize(((string)static::getModelClassName())) ));
+        return /*static::$TABLE_NAME =*/ strtolower($convertToSnakeCase( $pluralize(((string)static::getModelClassName())) ));
     }
 
 
@@ -759,7 +759,7 @@ abstract class Model1 extends Controller1 {
      * @param bool $asFriendly
      * @return string
      */
-     static function getModelClassName($asFriendly = false){ return  $asFriendly? ucwords(String1::convertToSnakeCase(static::class, ' ')): static::class; }
+     static function getModelClassName($asFriendly = false){ return  $asFriendly? ucwords(String1::convertToSnakeCase(static::class, ' ')): static::class;  }
 
     /**
      * Magic Method
@@ -827,7 +827,7 @@ abstract class Model1 extends Controller1 {
         foreach (get_object_vars($classFields) as $key=> $value) {
             if(!String1::startsWith($key, '__') && ($objectClass? array_key_exists($key, $objectClass): true)   ) $pureVariable[$key] = $value;
         }
-        return Array1::merge($pureVariable, static::getFixColumn() );
+        return Array1::merge(static::getFixColumn(), $pureVariable);
     }
 
     /**
@@ -958,39 +958,46 @@ abstract class Model1 extends Controller1 {
 
     /**
      * Pagination for Model
-     * @see paginationApi() or api
-     * @param $query
-     * @param int $limit
+     * @param string $query
+     * @param int $per_page
      * @param string $templateClass
      * @param string $requestPageKeyName
+     * @param array $selectColumn
      * @return array|Object1::toArrayObject
+     * @see paginationApi() or api
      */
-    static function paginate($query = "", $limit = 10, $templateClass = BootstrapPaginationTemplate::class, $requestPageKeyName = 'page'){
+    static function paginate($query = "", $selectColumn = [], $per_page = 10, $templateClass = BootstrapPaginationTemplate::class, $requestPageKeyName = 'page'){
         $total = static::count($query, 'count('.static::$PRIMARY_KEY_NAME.') as data');
-        $ql = MySql1::makeLimitQueryAndPagination($query, $total, $limit, $templateClass, $requestPageKeyName);
+        $ql = MySql1::makeLimitQueryAndPagination($query, $total, $per_page, $templateClass, $requestPageKeyName);
+        $allData = static::selectMany(true, $ql->query, $selectColumn);
         return Object1::toArrayObject(true, [
-            "data"=>static::selectMany(true, $ql->query),
-            "render"=>$ql->paginate
+            "data"=>$allData,
+            "render"=>$ql->paginate,
+            "total"=>$total,
+            "count"=>count($allData)
         ]);
     }
 
     /**
      * Pagination for Api
-     * @param $query
-     * @param int $limit
+     * @param string $query
+     * @param int $per_page
+     * @param array $selectColumn
+     * @param array $config
      * @return array|string
      * @see pagination() or Model
      */
-    static function paginateApi($query = "", $limit = 10){
-        $limit = isset_or($_REQUEST['limit'], $limit);
+    static function paginateApi($query = "", $per_page = 10, $selectColumn = [], $config = ['max_page_count'=>6]){
+        $config = array_merge(['max_page_count'=>6], $config);
+        $per_page = isset_or($_REQUEST['per_page'], $per_page);
         $current_page = +isset_or($_REQUEST['page'], 1);
         // limit
-        $total = static::count($query, 'count('.static::$PRIMARY_KEY_NAME.') as data');
-        $query = $query.' '.MySql1::makeLimitQuery($current_page, $limit);
-        $total_pages = ceil($total / $limit);
+        $total = static::count($query, 'count('.static::getTableName().'.'.static::$PRIMARY_KEY_NAME.') as data');
+        $query = $query.' '.MySql1::makeLimitQuery($current_page, $per_page);
+        $total_pages = ceil($total / $per_page);
         // page
         $link = ['first'=>($current_page != 1? Url1::replaceParameterAndGetUrl(['page'=>1]): null), 'prev'=>null, 'next'=>null, 'last'=>$total_pages > 1 && $current_page != $total_pages? Url1::replaceParameterAndGetUrl(['page'=>$total_pages]): null];
-        $meta = ['prev'=>0, 'next'=>0, 'more'=>Math1::getSurroundingValues($total_pages, $current_page), 'per_page'=>$limit, 'current_page'=>$current_page, 'total_page'=>$total_pages, 'total_count'=>$total, 'path'=>Url1::getPageFullUrl(['page'=>''])];
+        $meta = ['prev'=>0, 'next'=>0, 'more'=>Math1::getSurroundingValues($total_pages, $current_page, $config['max_page_count']), 'per_page'=>$per_page, 'current_page'=>$current_page, 'total_page'=>$total_pages, 'total_count'=>$total, 'path'=>Url1::getPageFullUrl(['page'=>''])];
         if( ($current_page-1) > 0){
             $meta['prev'] = $current_page - 1;
             $link['prev'] = Url1::replaceParameterAndGetUrl(['page'=>$meta['prev']]);
@@ -1000,7 +1007,7 @@ abstract class Model1 extends Controller1 {
             $link['next'] = Url1::replaceParameterAndGetUrl(['page'=>$meta['next']]);
         }
         return [
-            "data"=>static::selectMany( false, $query),
+            "data"=>static::selectMany( false, $query, $selectColumn),
             "links"=>$link,
             "meta"=>$meta,
         ];
@@ -1111,7 +1118,7 @@ abstract class Model1 extends Controller1 {
     static function findOrInit($key_value_array  = [], $findValue = null, $findColumn = 'id'){
         $foundModel = (!empty($findValue))? static::find($findValue, $findColumn, '', [], false): [];
         $mergeData = Array1::merge(Object1::toArray($key_value_array), $foundModel? $foundModel:[]);
-        $data = (count($mergeData) < 1) ? static::toModelColumnValueArray(): $mergeData;
+        $data = (count(Array1::toArray($mergeData)) < 1) ? static::toModelColumnValueArray(): $mergeData;
         return empty($data) ? ResultStatus1::make(false, 'Empty Model', null):  Object1::toArrayObject(true,   Object1::convertArrayToObject($data, static::getModelClassName()) );
     }
 
@@ -1142,6 +1149,7 @@ abstract class Model1 extends Controller1 {
      * @return string|static
      */
     static function find($id_or_value, $inColumnName = 'id', $andOtherQuery = '', $selectColumn = [], $convertToModel1 = true){
+        if(empty($id_or_value)) return ResultStatus1::falseMessage('Invalid Id Set!');
         $id_or_value = (is_array($id_or_value) && isset($id_or_value['id']) )? $id_or_value['id']: $id_or_value;
         $tableName = static::getTableName();
         $columnList = static::tableColumnMerge($selectColumn);
@@ -1155,17 +1163,17 @@ abstract class Model1 extends Controller1 {
     }
 
 
-
     /**
      * @param array $column_and_value
-     * @param array $selectColumn
      * @param string $logic
      * @param string $operator
+     * @param string $sortOrLimitQuery
+     * @param array $selectColumn
      * @return array|ArrayObject|bool|mysqli_result|null
      *  Get Equal Or Likely Value
      */
-    static function findMany($column_and_value = [], $logic = ' AND ', $operator = ' = ', $selectColumn = []){
-        $selectWhere = static::toSelectWhereQuery($column_and_value, $selectColumn, $logic, $operator);
+    static function findMany($column_and_value = [], $logic = ' AND ', $operator = ' = ', $sortOrLimitQuery = "", $selectColumn = []){
+        $selectWhere = static::toSelectWhereQuery($column_and_value, $selectColumn, $logic, $operator, $sortOrLimitQuery);
         return static::exec($selectWhere, true, false);
     }
 
@@ -1496,7 +1504,7 @@ abstract class Model1 extends Controller1 {
      * @return array|bool|Model1|ResultStatus1
      */
     static function tableLoadBackup($backupDataOrFilePath = null, $clearExistingData = true){
-        static::tableCreate( [], [], true);
+        static::tableCreate([],  true);
         if($clearExistingData) static::tableTruncate();
         $allTableData = is_string($backupDataOrFilePath)? Array1::readFromJSON($backupDataOrFilePath): $backupDataOrFilePath;
         $allTableData = $allTableData? $allTableData: Session1::get('backup_'.static::getTableName());
@@ -1567,7 +1575,7 @@ abstract class Model1 extends Controller1 {
         $uniqueColumnKey = static::tableColumnExpand($uniqueColumnKey);
         $allQuery = ''; $query1 = false; $query2 = false;
         $extractUniqueValue = Array1::getCommonField(null, $column_and_value, @array_flip($uniqueColumnKey));
-        if(!empty($extractUniqueValue)) $allQuery .= String1::toString($query1 = static::findMany($extractUniqueValue, " $uniqueColumnLogic ", ' = ', Array1::merge([static::$PRIMARY_KEY_NAME], $uniqueColumnKey)));
+        if(!empty($extractUniqueValue)) $allQuery .= String1::toString($query1 = static::findMany($extractUniqueValue, " $uniqueColumnLogic ", ' = ', "", Array1::merge([static::$PRIMARY_KEY_NAME], $uniqueColumnKey)));
         $allQuery .='<br/>'. String1::toString( $query2 = (new static())->toInsertQuery($column_and_value));
         if(static::$FLAG_SHOW_EXEC_QUERY) return $allQuery;
         if($query1 && count($query1) > 0 ){
@@ -1601,26 +1609,32 @@ abstract class Model1 extends Controller1 {
     static function insertOrUpdate($column_and_value = [], $insertUniqueColumnKey = [], $insertUniqueColumnLogic = ' AND ', $primary_key_name_to_find_exists_model = null) {
         $primary_key_name_to_find_exists_model = $primary_key_name_to_find_exists_model? $primary_key_name_to_find_exists_model: static::$PRIMARY_KEY_NAME;
         if(isset($column_and_value[$primary_key_name_to_find_exists_model]) && !empty($column_and_value[$primary_key_name_to_find_exists_model]) && $column_and_value[$primary_key_name_to_find_exists_model]) {
-            $result = static::find($column_and_value[$primary_key_name_to_find_exists_model], $primary_key_name_to_find_exists_model); //'', [static::$PRIMARY_KEY_NAME, $primary_key_name]
+            $result = static::find($column_and_value[$primary_key_name_to_find_exists_model], $primary_key_name_to_find_exists_model, "", [$primary_key_name_to_find_exists_model]); //'', [static::$PRIMARY_KEY_NAME, $primary_key_name]
             if($result) return $result->update($column_and_value);
+        }else if(!empty($insertUniqueColumnKey)){
+            $withValue = Array1::getCommonField(null, $column_and_value, $insertUniqueColumnKey);
+            if(count($withValue) === count($insertUniqueColumnKey)){
+                $result = static::findMany($withValue, $insertUniqueColumnLogic, " = ", " limit 1 ", [$primary_key_name_to_find_exists_model]);
+                if(isset($result[0])) return static::withId($result[0][$primary_key_name_to_find_exists_model])->update($column_and_value);
+            }
         }
-        return ( static::insert($column_and_value, $insertUniqueColumnKey, $insertUniqueColumnLogic));
+        return static::insert($column_and_value, $insertUniqueColumnKey, $insertUniqueColumnLogic);
     }
-
-
 
 
     /**
      * @param bool|string $includeClassFunctionOrQuery or simply put your $whereRawQuery
      * @param string $whereRawQuery ( e.g 'where id = 1')
      * @param array $selectColumn
-     * @return array|ArrayObject|bool|mysqli_result|null|static[]
+     * @param bool $idAsIndex
+     * @return array|self|static
      */
-    static function selectMany($includeClassFunctionOrQuery = false, $whereRawQuery = '', $selectColumn = []){
+    static function selectMany($includeClassFunctionOrQuery = false, $whereRawQuery = '', $selectColumn = [], $idAsIndex = false){
         if(is_string($includeClassFunctionOrQuery)){ $whereRawQuery = $includeClassFunctionOrQuery; $includeClassFunctionOrQuery = false; }
         $tableName =  static::getTableName();
         $columnList = static::tableColumnMerge($selectColumn);
-        return static::exec("SELECT $columnList FROM `$tableName` $whereRawQuery ", true, $includeClassFunctionOrQuery);
+        $data = static::exec("SELECT $columnList FROM `$tableName` $whereRawQuery ", true, $includeClassFunctionOrQuery);
+        return $idAsIndex? Array1::columnAsIndex($data, 'id'): $data;
     }
 
 
@@ -1676,7 +1690,7 @@ abstract class Model1 extends Controller1 {
      * @param bool $returnAsSingleColumn
      * @return mixed
      */
-    static function count($where = '', $columnQuery = ['count(*) as data'], $returnAsSingleColumn = true){
+    static function count($where = '', $columnQuery = ['count(id) as data'], $returnAsSingleColumn = true){
         $result =  static::selectMany(true, $where, $columnQuery);
         return  ($returnAsSingleColumn)? (int)@static::singleColumnList($result, 'data')[0]: $result;  //Db1::exec('Select count(*) from '.User::getTableName())
     }
@@ -1914,26 +1928,13 @@ abstract class Model1 extends Controller1 {
      * Return Update Query
      */
     static function toUpdateWhereQuery($update_column_and_value = [], $where_column_and_value = [],  $logic = ' AND ', $operator = ' = '){
-        /*
-            // update init
-            $query = $sqlQuery = 'UPDATE `'.static::$model::getTableName().'` SET ';
-            // sanitize all value
-            foreach ($update_column_and_value as $key=>$value)  $update_column_and_value[$key] = '"'.Model1::mysqlFilterValue($value).'"';
-            // build key=value
-            $query .= " (".Array1::mergeKeyValue($update_column_and_value, ' = ', ' , ', '`%s`', '%s').") ";
-            // where condition
-            $query .= static::$model::toWhereBuilder($update_column_and_value, ' AND ', ' = ');
-        */
-
         $filterArray = static::getSafeParamOnly($update_column_and_value);
         if(empty($filterArray)) return null;
-        $whereQuery = Array1::mergeKeyValue($where_column_and_value, $operator, $logic, "`%s`", "'%s'");
-
+        $whereQuery = Array1::mergeKeyValue($where_column_and_value, $operator, " $logic ", "%s", "'%s'");
         $tableData = static::toModelColumnValueArray();
         $toDataTypeFormat = function ($key, $value) use ($tableData){
             return static::saveToDbAs(gettype($tableData[$key]), $value);
         };
-
         $sqlQuery = 'UPDATE `'.static::getTableName().'` SET ';
         $i = 0;
         $total = count($filterArray);
@@ -1945,7 +1946,6 @@ abstract class Model1 extends Controller1 {
             else $sqlQuery .= ($whereQuery)? " WHERE $whereQuery ": '';
             $i++;
         }
-
         return $sqlQuery;
     }
 
@@ -2022,9 +2022,9 @@ abstract class Model1 extends Controller1 {
     static function toWhereBuilder($column_and_its_value = [], $logic = ' OR ', $operator = ' = ', $keyWrap =  "`%s`", $valueWrap = "'%s'"){ return " WHERE ".Array1::mergeKeyValue($column_and_its_value, $operator, $logic, $keyWrap, $valueWrap); }
 
 
-    static function toSelectWhereQuery($column_and_value = [], $selectColumn = [], $logic = ' OR ', $operator = ' = '){
+    static function toSelectWhereQuery($column_and_value = [], $selectColumn = [], $logic = ' OR ', $operator = ' = ', $sortOrLimitQuery = ""){
         $columnList = static::tableColumnMerge($selectColumn);
-        $where = !empty($column_and_value)? static::toWhereBuilder($column_and_value, $logic, $operator,"`%s`", "'%s'"): '';
+        $where = (!empty($column_and_value)? static::toWhereBuilder($column_and_value, $logic, $operator,"`%s`", "'%s'"): '')." $sortOrLimitQuery ";
         return "SELECT $columnList FROM `".static::getTableName()."` ".$where."; ";
     }
 
@@ -2264,9 +2264,9 @@ abstract class Model1 extends Controller1 {
             if(!empty($file_name) && !strpos($file_name, '.')) $file_name = $file_name.'.'.$fileInfo['extension'];
             return $this->uploadFile($source_file['tmp_name'], $file_name, $addUrlToModel1FileLocator, $compress, $compress_config, $uploadMainDirectory);
         }else{
-
             // create all path
             $path = $this->getAssetDirectoryType($uploadMainDirectory)['path'];
+
             // file name
             $file_name = (($file_name)? $file_name: time());//.'_'.$source_file['name']);
             if(FileManager1::upload($source_file, $path.'/'.$file_name, $compress, $compress_config)){
@@ -2377,7 +2377,7 @@ abstract class AuthModel1 extends Model1 {
      * @param string $role
      * @return array|mixed
      */
-    static function getRolesFrom($role = ''){ return Array1::splitAndGetFirstList(static::getRoles(), $role); }
+    static function getRolesFrom($role = 'user'){ return Array1::splitAndGetFirstList(static::getRoles(), $role); }
 
     /**
      * Confirm if logged in user role exists within First Row and Specified $toWhichRole End Role... e.g from admin to staff
@@ -2389,7 +2389,7 @@ abstract class AuthModel1 extends Model1 {
      * @param string $toWhichRole
      * @return array
      */
-    static function isRoleWithin($userRoleOrRoleList, $toWhichRole = 'staff'){
+    static function isRoleWithin($userRoleOrRoleList, $toWhichRole = 'staff') {
         if(is_array($userRoleOrRoleList)) return static::isAdmin(false, $userRoleOrRoleList);
         return Array1::contain(Array1::splitAndGetFirstList(static::getRoles(), $toWhichRole), $userRoleOrRoleList);
     }
@@ -2401,17 +2401,17 @@ abstract class AuthModel1 extends Model1 {
 
 
     /**
-     * @param null $request (Default is  $_REQUEST)
+     * @param null $requestKeyValue (Default is  $_REQUEST)
      * @param array $uniqueColumn (Columns That Must not Exists Twice)
      * @param bool $encryptPassword
      * @return static|bool|Model1|ResultStatus1
      *
      *        Register User and Return Account Info
      */
-    static function register($request = null,  $uniqueColumn = ['email', 'user_name'], $encryptPassword = false){
-        $request = $request? $request: $_REQUEST;
-        $request['password'] = $encryptPassword? encrypt_data($request['password']): $request['password'];
-        return static::insert($request, $uniqueColumn);
+    static function register($requestKeyValue = null, $uniqueColumn = ['email', 'user_name'], $encryptPassword = false){
+        $requestKeyValue = $requestKeyValue? $requestKeyValue: $_REQUEST;
+        $requestKeyValue['password'] = $encryptPassword? encrypt_data($requestKeyValue['password']): $requestKeyValue['password'];
+        return static::insert($requestKeyValue, $uniqueColumn);
     }
 
 
@@ -2546,7 +2546,12 @@ abstract class AuthModel1 extends Model1 {
      * @param string $redirectTo
      * @return null
      */
-    static function logout($redirectTo = '/'){ return Config1::onLogout().Session1::deleteUserInfo()? Url1::redirectIf($redirectTo, 'Logout Successfully!', true): Session1::setStatus('Failed', 'Logout Failed', 'error'); }
+    static function logout($redirectTo = '/'){
+        Config1::onLogout();
+        return Session1::deleteUserInfo() &&
+            Url1::redirectIf($redirectTo, ['Action Successful', 'Logout Successfully!', 'success'], true)??
+            Session1::setStatus('Failed', 'Logout Failed', 'error');
+    }
 
 
     /**
@@ -2964,13 +2969,14 @@ abstract class Api1 extends ServerRequest1 {
 
     /**
      * @param $request
+     * @return bool
      */
     public static function onApiStart($request){ return true; }
 
     /**
      * @return bool
      */
-    public static function isApiAuthValid(){ return isset($_REQUEST['token'])? is_token_valid($_REQUEST['token']): false; }
+    public static function isApiAuthValid(){ return isset($_REQUEST['_token'])? is_token_valid($_REQUEST['_token']): false; }
 
     /**
      * return !!User::getAllowedRoleLogin([]);
@@ -2984,7 +2990,7 @@ abstract class Api1 extends ServerRequest1 {
 /**
  * Class Controller1
  *  All Controller Class must Extend this, Model is also extending this which means, Model Can contain Controller function as Well...
- *  The Only Different between This and Api1 class is that, Controller get validate automatically just by putting <input name='token' value="{{ token() }}" type="hidden" /> or simply call form_token() in the form field
+ *  The Only Different between This and Api1 class is that, Controller get validate automatically just by putting <input name='_token' value="{{ token() }}" type="hidden" /> or simply call form_token() in the form field
  */
 abstract class Controller1 extends Api1 {
     /**

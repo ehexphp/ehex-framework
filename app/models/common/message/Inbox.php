@@ -35,7 +35,6 @@ class Inbox extends Model1 implements Model1ActionInterface {
 
 
 
-
     /**
      * Unique Chat Id Generator
      * @param array $userIdList
@@ -332,7 +331,7 @@ class Inbox extends Model1 implements Model1ActionInterface {
      * Model Sidebar menu list.
      */
     static function getMenuList() {
-        $totalMessageCount = self::getUserUnreadMessagesCount(Auth1::id());
+        $totalMessageCount = self::isTableExists()? self::getUserUnreadMessagesCount(Auth1::id()): 0;
         $totalMessageCountTag = $totalMessageCount>0? '<span class="badge badge-primary">'.$totalMessageCount.'</span>': "";
 
         return  [

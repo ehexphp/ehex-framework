@@ -2,6 +2,7 @@
 
 namespace Xiaoler\Blade\Compilers;
 
+use FileManager1;
 use InvalidArgumentException;
 use Xiaoler\Blade\Filesystem;
 
@@ -45,7 +46,7 @@ abstract class Compiler
      */
     public function getCompiledPath($path){
         $cachePath = $this->cachePath.'/'.sha1($path).'.php';
-        if(!isset(\exBlade1::$LOADED_VIEW_AND_CACHE_LIST[$path])) \exBlade1::$LOADED_VIEW_AND_CACHE_LIST[$path] = $cachePath;
+        if(!isset(\exBlade1::$LOADED_VIEW_AND_CACHE_LIST[$path])) \exBlade1::$LOADED_VIEW_AND_CACHE_LIST[$path] = FileManager1::normalizeFilePathSeparator($cachePath);
         return $cachePath;
     }
 

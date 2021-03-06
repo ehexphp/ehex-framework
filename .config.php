@@ -1,18 +1,17 @@
 <?php
 /**
- * The base configuration for Ehex
+ * Project Configuration
  *
- * Name : Ehex Framework
- * Description : Very Smart, Clean and Comprehensive Framework
- * Documentation : https://ehex.xamtax.com/,     GitHub : https://github.com/ehexphp/ehex-framework
- * Author :  Samson Iyanu (https://xamtax.com),     E-Mail : samsoniyanu@hotmail.com
- * Version : version 1.5.0
+ * Framework : Ehex (https://github.com/ehexphp/ehex-framework)
+ * Description : Simple, Clean and Comprehensive Framework
+ * Author :  Samson Oyetola (hello@samsonoyetola.com)
+ * Version : version 2.0
  *
  * This file contains the following configurations:
- * * App settings
- * * App Life Cycle settings
- * * Database/MySQL settings
- * * Mail keys
+ *  - Global Environment Variable
+ *  - App Life Cycle
+ *  - Database/MySQL cofig
+ *  - Mail and thirdparties config 
  * @package Ehex
  */
 
@@ -20,15 +19,11 @@
 
 
 
-/************************************************
- *  Primary Config
- *  And Application Life Cycle
- ************************************************/
 
-// Database Config
+
+
+
 class Config1{
-
-
 
     // Database Settings
     //public static $no_db = true;
@@ -46,6 +41,7 @@ class Config1{
 
     // Options
     const DEBUG_MODE = true;
+    const DEBUG_IP = [];
     const MAINTENANCE_MODE = false;
     const MODELS_CLF_CALLABLE_LIST = ['*']; 
     const ACCESS_CONTROL_ALLOW_ORIGINAL = ['*'];
@@ -57,9 +53,9 @@ class Config1{
     const EXCLUDE_CLASS = [];
 
     // APP developer
-    const APP_DEVELOPER_NAME = 'Samson Iyanu';
-    const APP_DEVELOPER_EMAIL = 'samsoniyanu@hotmail.com';
-    const APP_DEVELOPER_WEBSITE = 'https://xamtax.com';
+    const APP_DEVELOPER_NAME = 'Samson Oyetola';
+    const APP_DEVELOPER_EMAIL = 'hello@samsonoyetola.com';
+    const APP_DEVELOPER_WEBSITE = 'https://samsonoyetola.com';
 
     // Mail Settings
     const MAIL_HOST = 'smtp.gmail.com'; //; smtp1.example.com; smtp2.example.com
@@ -89,7 +85,11 @@ class Config1{
      */
     static function onRoute($route) {
 
+        /**
+         * Turn a view directory to route
+         */
         //$route->directory('pages.common');
+
 
         /**
          * Home Page
@@ -98,57 +98,59 @@ class Config1{
 
 
         /**
-         * All Model Compiled Route
+         * Compile all model's route
          */
         Dashboard::onRoute($route);
 
         /**
-         * Site Account Auth and Delete
-         * Default Route... api, login, register...
+         * For Dashboard route, Error 404 and Site Under-Construction
          */
-        exRoute1::makeDefault('/dashboard');
-
-
-
-
-        /**
-         * For Error 404 and Site Under-Construction
-         */
-        $route->fixed(['error404'=>'pages.common.error404', 'maintenance'=>'pages.common.maintenance_mode']);
+        $route->fixed([
+            'dashboard_route'=>'dashboard',
+            'error404'=>'pages.common.error404',
+            'maintenance'=>'pages.common.maintenance_mode'
+        ]);
 
     }
 
 
+    /**
+     * Route Passage
+     *
+     * @param RouteRequest $req
+     * @return bool
+     */
+    static function onMiddleware(RouteRequest $req) {
+        return true;
+    }
+
 
 
     /**
-     * Run When Page Start
-     * All return array variable key will be turned to variable
-     * and there values turn to the variable value
+     * Execute before page renders
+     * All keys will become global variable.
      * @return array (of shared variables)
      */
-    static function onPageStart() {     return ['page_title'=>''];     }
+    static function onPageStart() {
+        return ['page_title'=>''];
+    }
 
 
     /**
-     * Run When Page Ends
+     * Execute after page renders
      */
-    static function onPageEnd() {  }
+    static function onPageEnd() {}
 
 
 
     /**
-     * Run Model Create, Alter or Destroy Here When Debug is TRUE in ".config.php"
+     * Create, Alter or Destroy Database model here. 
+     * Execute only when DEBUG_MODE is set to TRUE
      */
     static function onDebug(){
        // Db1::tableCreateAll();
-       // Db1::tableResetAll();
          if(isset($_REQUEST['db_init'])) {
             //Db1::tableCreateAll();
-            //foreach (Course::defaultList() as $title=>$unit)
-             //   Course::insert(['title'=>$title, 'unit'=>$unit], ['title']);
-
-
             //$firstUser = User::find("user", "role");
             //if($firstUser) $firstUser->update(['role'=>'admin']);
         }
@@ -158,28 +160,25 @@ class Config1{
 
 
     /**
-     * Run When User Login
-     * @param $user : i.e User::getLogin(); instance
+     * Execute when login is successful
+     * @param $user : i.e User::getLogin() instance
      */
     static function onLogin(User $user) {  }
 
 
 
     /**
-     * Run When User Logout
+     * Execute when logout
      */
     static function onLogout() { }
-
-
-
-
-
+    
 
 
 
     /**
-     * Widget Config.
-     *  Common Widget Located in exWidget1.
+     * Widget Configuration
+     * Common Widget Located in exWidget1.
+     * e.g echo exWidget1::getJivoLiveChat()
      * @param $key
      * @return mixed
      */

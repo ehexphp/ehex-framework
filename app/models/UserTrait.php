@@ -257,6 +257,8 @@ trait UserTrait {
     }
 
 
+
+
     /**
      * @param exRoute1 $route
      */
@@ -264,6 +266,26 @@ trait UserTrait {
         $route->view('/user/manage', 'pages.common.dashboard.admin.manage_user');    // manage user
         $route->get('/dashboard', function (){ view( User::isAdmin()? 'pages.common.dashboard.admin.index': 'pages.common.dashboard.user.index'); });
         $route->view('/user/dashboard',  'pages.common.dashboard.user.index');
-        exRoute1::view('/profile', 'pages.common.dashboard.user.profile');
+        $route->view('/profile', 'pages.common.dashboard.user.profile');
+
+        // auth
+        $route->view('/forgot_password','pages.auth.forgot_password');
+        $route->view('/reset_password', 'pages.auth.reset_password');
+        $isLoginFound = function () use ($route){
+            if(User::isLoginExist()) Url1::redirect(url($route->getDashboardRoute()), ['Welcome Back', 'You have logged in already, please Logout out first and try again', 'error']);
+            return false;
+        };
+        $route->any('/register', function() use ($isLoginFound){
+            if(!$isLoginFound()) echo view('pages.auth.register');
+        });
+        $route->any('/login', function() use ($isLoginFound){
+            if(!$isLoginFound()) echo view('pages.auth.login');
+        });
+        $route->any('/logout', function() {
+            return User::logout();
+        });
+        $route->get('/delete_account', function() {
+            User::getLogin(false)->delete();
+        });
     }
 }

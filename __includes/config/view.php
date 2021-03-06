@@ -59,7 +59,6 @@
      * @param bool $noPageAutoWrap
      * @return string
      * render the template file, stop the page and echo the view
-     * @throws Throwable
      */
     function view($view_name, $param = [], $noPageAutoWrap = false){
         global $view;

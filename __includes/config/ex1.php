@@ -7,6 +7,14 @@
  */
 
 
+class exApp1{
+    /**
+     * App debug status
+     * @return bool
+     */
+    static function isDebugMode(){ return is_debug_mode(); }
+
+}
 
 class exClass1 {
     /**
@@ -117,7 +125,7 @@ class exForm1{
      */
     static function makeRunnableForm($className = Controller1::class, $functionName = '', $titleName = null){
         return  "<form action='".Form1::callController($className, $functionName)."' method='post'>".form_token()."<button style='padding:10px; border:5px solid #2295bc;font-size:12px;border-radius:20px;' type='submit' type='btn btn-primary'>".($titleName? $titleName: "Run ".$className."::$functionName Now")."</button></form>";
-        //<a href='".Form1::callController($className, $functionName).'?token='.token()."'> Run </a>
+        //<a href='".Form1::callController($className, $functionName).'?_token='.token()."'> Run </a>
     }
 }
 
@@ -396,6 +404,7 @@ class exRoute1{
     static function post($name, $action){  return route()->post($name, $action); }
     static function view($name, $viewName, $dataParam = []){ return route()->view($name, $viewName, $dataParam); }
     static function fixed($arrayList = ['error404'=>'pages.common.error404', 'maintenance'=>'layouts.coming_soon.index']){ return route()->fixed($arrayList); }
+    static function getDashboardRoute($default = null){ return route()->getDashboardRoute($default); }
 
     /**
      * Use Model Controller To Fill Route Name Automatically, Your class must implement Controller1RouteInterface
@@ -424,16 +433,6 @@ class exRoute1{
      * @return Route|RouteSystem|string
      */
     static function getRoutes(){ return route(); }
-
-    /**
-     * Make Default Route Like login, register e.t.c
-     * @param string $onLoginFound_redirectTo
-     * @param array $errorMessage
-     * @see make_default_route
-     */
-    static function makeDefault($onLoginFound_redirectTo = '/', $errorMessage = ['Welcome Back', 'You have Logged In Already, Please Logout out first and try again', 'error']){
-        make_default_route($onLoginFound_redirectTo, $errorMessage);
-    }
 
     /**
      * Is Certain Route name Exists
@@ -541,8 +540,22 @@ class exWidget1{
     static function getJivoLiveChat($jivo_livechat = null){
         return "
         <!-- BEGIN JIVOSITE CODE {literal} --> <script type='text/javascript'>
-           (function(){ var widget_id = '".($jivo_livechat? $jivo_livechat: Config1::widget('jivo_livechat'))."';var d=document;var w=window;function l(){
-                var s = document.createElement('script'); s.type = 'text/javascript'; s.async = true; s.src = '//code.jivosite.com/script/widget/'+widget_id; var ss = document.getElementsByTagName('script')[0]; ss.parentNode.insertBefore(s, ss);}if(d.readyState=='complete'){l();}else{if(w.attachEvent){w.attachEvent('onload',l);}else{w.addEventListener('load',l,false);}}})();</script> <!-- {/literal} END JIVOSITE CODE -->
+           (function(){ 
+                var widget_id = '".($jivo_livechat? $jivo_livechat: Config1::widget('jivo_livechat'))."';var d=document;var w=window;function l(){
+                var s = document.createElement('script'); s.type = 'text/javascript'; s.async = true; s.src = '//code.jivosite.com/script/widget/'+widget_id; var ss = document.getElementsByTagName('script')[0]; ss.parentNode.insertBefore(s, ss);}if(d.readyState=='complete'){l();}else{if(w.attachEvent){w.attachEvent('onload',l);}else{w.addEventListener('load',l,false);}}})();
+            
+        </script>
+        <script>
+            function jivo_onOpen() {
+                jivo_api.setContactInfo({
+                    'name': ".isset_or(Auth1::user()['full_name']).",
+                    'email': ".isset_or(Auth1::user()['email']).",
+                    'phone': ".isset_or(Auth1::user()['phone_number']).",
+                    'description': User Id : ".isset_or(Auth1::user()['id']).", UserName:  ".isset_or(Auth1::user()['user_name'])."
+                });
+            }
+        </script>
+        <!-- {/literal} END JIVOSITE CODE -->
         ";
     }
 
@@ -552,10 +565,6 @@ class exWidget1{
         </script><!--End of Tawk.to Script-->
         ";
     }
-
-
-
-
 }
 
 
@@ -568,7 +577,9 @@ class exWidget1{
  *  Inbuilt Secured Api caller. because it is using controller1, therefore, it cannot be accessed from outside the app.
  *  Because token is always required.
  */
-class exApiController1 extends Controller1{
+class exApiController1 extends Api1 {
+
+
     /**
      * Auto delete Controller used in deleting model assets. HtmlWidget1::fileDeleteBox()
      * Required :

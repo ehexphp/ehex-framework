@@ -13,6 +13,23 @@
 
 
 
+/**
+ * Check app debug state
+ * @return bool
+ */
+function is_debug_mode(){
+    if(Config1::DEBUG_MODE) return true;
+    else foreach (Config1::DEBUG_IP as $key) if(preg_match("/$key/", $_SERVER['REMOTE_ADDR'])) return true;
+    return false;
+}
+
+
+// error activator
+    if(is_debug_mode()){
+        ini_set('display_errors', 1);
+        ini_set('display_startup_errors', 1);
+        error_reporting(E_ALL);
+    }
 
 
 
@@ -26,7 +43,6 @@
  *  Ehex Import
  ************************************************/
     // Ehex MadeWork
-    //require PATH . '../.config.php';
     require PATH_EASYCORE . 'Ehex.php';
     require PATH_EASYCORE . 'EasyDb.php';
     require PATH_EASYCORE . 'EasyDataSet.php';
@@ -41,56 +57,24 @@
 /************************************************
  *  Others, like function list and Simple Html Dom
  ************************************************/
-    //require PATH_LIBRARY . 'html-dom/simple_html_dom.php';
+    // require PATH_LIBRARY . 'html-dom/simple_html_dom.php';
     require PATH_INCLUDE . "config/function.php";
     include PATH_INCLUDE . 'config/session.php';
 
+    // Load Autoload Classes
+    FileManager1::autoClassRecursiveLoad(
+        array_merge(
+            app_class_paths(),
+            [PATH_LIBRARY.'__autoload_class/']
+        )
+    );
 
-
-
-
-/************************************************
- *  AutoLoadPaths    Model / Api / Controller
- ************************************************/
-//    function autoload_register($path, $addToArrList = []){
-//        spl_autoload_register(function($class_name) {
-//            foreach(Config1::$auto_load_directory as $dir ) {
-//                $path = PATH.$dir.DIRECTORY_SEPARATOR;
-//                $class_path = $path.$class_name.'.php';
-//                if()
-//
-//                if (file_exists($class_path)) {
-//                    require_once($class_path); return;
-//                }
-//
-//
-//            }
-//        });
-//    }
-//
-//
-//    if(Config1::$auto_load_class_only){
-//        spl_autoload_register(function($class_name) {
-//            foreach(Config1::$auto_load_directory as $dir ) {
-//                $class_path = PATH_APP.$dir.DIRECTORY_SEPARATOR.$class_name.'.php';
-//                if (file_exists($class_path)) {
-//                    require_once ($class_path); return;
-//                }
-//            }
-//        });
-//
-//    }else{
-//        foreach (FileManager1::getDirectoriesFiles(Array1::wrap(Config1::$auto_load_directory, PATH_APP), ['php'], [], -1, true) as $controllerFile) require_once($controllerFile);
-//    }
-
-
-
-
-/**
- * Load Autoload Classes
- */
-FileManager1::autoClassRecursiveLoad(
-    array_merge(
-        app_class_paths(),
-        [PATH_LIBRARY.'__autoload_class/']
-    ));
+    // load Helper Library
+    include PATH_INCLUDE . 'config/error.php';                // Error Handler
+    include PATH_INCLUDE . 'config/ex1.php';                  // Extending Class1 list/ Url1x::route(), Mail1x::...
+    include PATH_INCLUDE . 'config/data_query.php';           // Query Builder Config
+    include PATH_INCLUDE . 'config/view.php';                 // View Config
+    include PATH_INCLUDE . 'config/translator.php';           // Language Translator
+    include PATH_INCLUDE . 'config/mail.php';                 // Mailer
+    include PATH_INCLUDE . 'config/file.php';                 // File Session and File Database
+    include PATH_INCLUDE . 'config/vendor.php';               // File Session and File Database

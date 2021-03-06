@@ -179,13 +179,19 @@
 
             global $FORM_ACTION_SHOULD_REDIRECT;
             Session1::set('old', $_REQUEST);
-            echo json_encode( \ServerRequest1::callFunction(urldecode($url), ',', false) );
+
+            // render function
+            \ServerRequest1::callFunction(urldecode($url), ',', false);
 
             if(!$FORM_ACTION_SHOULD_REDIRECT) return $FORM_ACTION_SHOULD_REDIRECT = true;
             else return Url1::redirect(String1::isset_or($_REQUEST['redirect_to'], Url1::backUrl()));
         });
-        $route->any(['api/*', 'restapi/*'], function (){ echo json_encode(\Api1::callFunction(urldecode(Url1::getPageName()))); });
+        $route->any('api/*', function (){
+            // render result
+            echo json_encode(\Api1::callFunction(urldecode(Url1::getPageName()), ',', true));
+        });
     }
+
 
 
 
@@ -195,20 +201,6 @@
      * @param $actionFunction
      */
     function make_route($name, $actionFunction) { global $route; $route->any($name, $actionFunction); }
-
-    /**
-     * @param string $onLoginFound_redirectTo
-     * @param array $errorMessage
-     */
-    function make_default_route($onLoginFound_redirectTo = '/', $errorMessage = ['Welcome Back', 'You have Logged In Already, Please Logout out first and try again', 'error']) { //routes()['dashboard']
-        global $route;
-        $route->view('/forgot_password', 'pages.auth.forgot_password');
-        $route->view('/reset_password', 'pages.auth.reset_password');
-        $route->any('/register',        function() use ($onLoginFound_redirectTo, $errorMessage){ if(User::isLoginExist()){  Url1::redirect(url($onLoginFound_redirectTo), $errorMessage); } else { echo view('pages.auth.register'); } });
-        $route->any('/login',           function() use ($onLoginFound_redirectTo, $errorMessage){ if(User::isLoginExist()){  Url1::redirect(url($onLoginFound_redirectTo), $errorMessage); } else { echo view('pages.auth.login'); } });
-        $route->any('/logout',          function() { return User::logout(); });
-        $route->get('/delete_account',  function() { (User::getLogin(false))->delete(); });
-    }
 
 
     api_and_form_default_route();

@@ -20,7 +20,7 @@
  *
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * FITNESS FOR A PARTICULAR PURPOSE AND NON INFRINGEMENT. IN NO EVENT SHALL THE
  * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
  * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
@@ -35,31 +35,10 @@
  * @filesource
  */
 
-
-$exConfig = [
-    'enable_whoop'=>true,
-];
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+$exConfig = ['enable_whoop'=>true];
 
 // is php version 7+
-if(version_compare(PHP_VERSION, '7.0.0', '<')) die('<p>Ehex Requires (PHP VERSION 7+) for now<br/>Not to worry, Our Next Version would be compatible with PHP 5</p>');
+if(version_compare(PHP_VERSION, '7.0.0', '<')) die('<p>Ehex Requires (PHP VERSION 7+)</p>');
 
 // access control origin
 if(!empty(Config1::ACCESS_CONTROL_ALLOW_ORIGINAL)) {
@@ -74,16 +53,14 @@ if(!empty(Config1::ACCESS_CONTROL_ALLOW_ORIGINAL)) {
 
 //  Define Current Location
 define('DS',            DIRECTORY_SEPARATOR, true);
-define('BASE_PATH',      dirname($_SERVER['SCRIPT_FILENAME']).DS, TRUE);
+define('BASE_PATH',     dirname($_SERVER['SCRIPT_FILENAME']).DS, TRUE);
 
 // Define Real-Path Declaration... Changeable
 define('PATH_APP',      BASE_PATH.'app'.DS, TRUE);
 define('PATH_RESOURCE', BASE_PATH.'resources'.DS, TRUE);
 define('PATH_LAYOUTS',  PATH_RESOURCE.'views'.DS.'layouts'.DS, TRUE);
 define('PATH_PLUGINS',  PATH_RESOURCE.'plugins'.DS, TRUE);
-//echo
-//die(    )  ;
-define('PATH_INCLUDE',  dirname(__DIR__).DS.'../'. array_reverse(explode('/', Config1::INCLUDES_PATH))[0].DS, TRUE); //'__includes'   //dirname(__DIR__).DS.Config1::INCLUDES_PATH, TRUE); //
+define('PATH_INCLUDE',  dirname(__DIR__).DS.'../'. array_reverse(explode('/', Config1::INCLUDES_PATH))[0].DS, TRUE);
 
 
 // Define Include sub-folder
@@ -95,34 +72,11 @@ define('PATH_SHARED',  PATH_INCLUDE . 'shared'.DS, TRUE);
 define('PATH_SHARED_APP',  PATH_SHARED.'app'.DS, TRUE);
 define('PATH_SHARED_RESOURCE',  PATH_SHARED.'resources'.DS, TRUE);
 
-
-// error activator
-if(!empty(Config1::DEBUG_MODE)){
-    ini_set('display_errors', 1);
-    ini_set('display_startup_errors', 1);
-    error_reporting(E_ALL);
-}
-
 // start
-include PATH_INCLUDE . 'config/__init_start.php';              // Default Config
-
-
-
-// load Helper Library
-include PATH_INCLUDE . 'config/error.php';                // Error Handler
-include PATH_INCLUDE . 'config/ex1.php';                  // Extending Class1 list/ Url1x::route(), Mail1x::...
-include PATH_INCLUDE . 'config/data_query.php';           // Query Builder Config
-include PATH_INCLUDE . 'config/view.php';                 // View Config
-include PATH_INCLUDE . 'config/translator.php';           // Language Translator
-include PATH_INCLUDE . 'config/mail.php';                 // Mailer
-include PATH_INCLUDE . 'config/file.php';                 // File Session and File Database
-include PATH_INCLUDE . 'config/vendor.php';               // File Session and File Database
-
+include PATH_INCLUDE . 'config/__init_start.php';              // Start Default Config
 
 // end
-include PATH_INCLUDE . 'config/__init_end.php';              // Default Config
-
-
+include PATH_INCLUDE . 'config/__init_end.php';               // End Default Config
 
 // Un-Managed Third Party by Composer
 //include BASE_PATH . '../vendor/autoload.php';

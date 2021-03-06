@@ -35,7 +35,7 @@
 	<style>.up-modal-content{padding:10px;}</style>
 
 
-		<!-- Open Graph -->
+	<!-- Open Graph -->
 	<meta property="og:image" content="{{ asset('favicon.png') }}"/>{{--<meta property="og:image:width" content="800" /><meta property="og:image:height" content="543" />--}}
 	<!-- Header Color -->
 	<meta content="#3175D1" name="theme-color"/>
@@ -46,14 +46,14 @@
 	<!-- Menu -->
 	<nav class="navbar navbar-expand-lg navbar-light bg-light">
 		<button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navTopMenu" aria-controls="navTopMenu" aria-expanded="false" aria-label="Toggle navigation"><span class="navbar-toggler-icon"></span></button>
-		<a class="navbar-brand" href="{{ url("/")  }}"> <!-- <img src="{ { asset("/favicon.png") }}" alt="Logo"> --> {{ Config1::APP_TITLE }}</a>
+		<a class="navbar-brand" up-target="main" href="{{ url("/")  }}"> <!-- <img src="{ { asset("/favicon.png") }}" alt="Logo"> --> {{ Config1::APP_TITLE }}</a>
 
 		<div class="collapse navbar-collapse" id="navTopMenu">
 			<ul class="navbar-nav mr-auto mt-2 mt-lg-0">
-				{!! HtmlWidget1::urlActiveTag(url("/"), '<a class="nav-link" href="'.url('/').'">Home <span class="sr-only">(current)</span></a>', 'active', 'nav-item', [], 'li', true) !!}
+				{!! HtmlWidget1::urlActiveTag(url("/"), '<a class="nav-link" up-target="main" href="'.url('/').'">Home <span class="sr-only">(current)</span></a>', 'active', 'nav-item', [], 'li', true) !!}
 				@if(Auth1::isGuest())
-					{!! HtmlWidget1::urlActiveTag(url('login'), '<a class="nav-link" href="'.url('login').'">Login</a>', 'active', 'nav-item') !!}
-					{!! HtmlWidget1::urlActiveTag(url('register'), '<a class="nav-link" href="'.url('register').'">Register</a>', 'active', 'nav-item') !!}
+					{!! HtmlWidget1::urlActiveTag(url('login'), '<a class="nav-link" up-target="main" href="'.url('login').'">Login</a>', 'active', 'nav-item') !!}
+					{!! HtmlWidget1::urlActiveTag(url('register'), '<a class="nav-link" up-target="main" href="'.url('register').'">Register</a>', 'active', 'nav-item') !!}
 				@elseif(Auth1::isAdmin())
 					{!! HtmlWidget1::urlActiveTag(url('dashboard'), '<a class="nav-link" href="'.url('dashboard').'">Admin Dashboard</a>', 'active', 'nav-item') !!}
 					{!! HtmlWidget1::urlActiveTag(url('logout'), '<a class="nav-link" href="'.url('logout').'">Logout</a>', 'active', 'nav-item') !!}
@@ -75,25 +75,27 @@
 	<!-- Page Content -->
 	<main>
 		@yield('page_content')
+
+		<!-- Footer Content -->
+		@section('page_footer')
+			<footer class="page-footer footer bg-dark py-3 mt-5">
+				<div class="container">
+					<div class="text-right">
+						<span class="float-left text-white-50 mt-2">Copyright {{ date("Y") }}. {{ Config1::APP_TITLE }}</span>
+						<a class="btn btn-link" href="{{ url('/') }}">Home</a>
+						<a class="btn btn-link" href="{{ url('/blog') }}">Blog</a>
+						<a class="btn btn-link" href="{{ url('/about') }}">About</a>
+						<a class="btn btn-link" href="{{ url('/contact') }}">Contact</a>
+						<a class="btn btn-link" href="{{ url('/terms_and_condition') }}">Term and Condition</a>
+					</div>
+				</div>
+			</footer>
+		@show
 	</main>
 
 
 
-	<!-- Footer Content -->
-	@section('page_footer')
-		<footer class="page-footer footer bg-dark py-3 mt-5">
-			<div class="container">
-				<div class="text-right">
-					<span class="float-left text-white-50 mt-2">Copyright {{ date("Y") }}. {{ Config1::APP_TITLE }}</span>
-					<a class="btn btn-link" href="{{ url('/') }}">Home</a>
-					<a class="btn btn-link" href="{{ url('/blog') }}">Blog</a>
-					<a class="btn btn-link" href="{{ url('/about') }}">About</a>
-					<a class="btn btn-link" href="{{ url('/contact') }}">Contact</a>
-					<a class="btn btn-link" href="{{ url('/terms_and_condition') }}">Term and Condition</a>
-				</div>
-			</div>
-		</footer>
-	@show
+
 
 	<!-- Default Script -->
 	<script src="{{ shared_asset() }}/sweetalert2/sweetalert2.min.js"></script>

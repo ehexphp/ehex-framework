@@ -13,7 +13,7 @@
  *  File Session
  ************************************************/
     require_once(PATH_LIBRARY . 'filesession/FileSession1.php');
-    $__FILE_SESSION =   new FileSession1('default', resources_path_cache().'/file_session/', Config1::DEBUG_MODE);
+    $__FILE_SESSION =   new FileSession1('default', resources_path_cache().'/file_session/', is_debug_mode());
     /**
      * Custom Define
      * @return FileSession1
@@ -47,7 +47,7 @@
      *
      */
     function file_session($fileName = null){
-        if($fileName) return new FileSession1($fileName, resources_path_cache().'/file_session/', Config1::DEBUG_MODE);
+        if($fileName) return new FileSession1($fileName, resources_path_cache().'/file_session/', is_debug_mode());
         global $__FILE_SESSION;
         return $__FILE_SESSION;
     }

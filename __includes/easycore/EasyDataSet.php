@@ -42,13 +42,13 @@
 
 class DemoSchool{
     static function getDepartmentList(){
-        return DemoGenerator::getFile("school_department.json", true);
+        return FileManager1::getDatasetFile("school_department.json", true);
     }
 }
 
 
 class DemoBook{
-    static function getGenres(){ DemoGenerator::getFile("book_genre.json", true); }
+    static function getGenres(){ FileManager1::getDatasetFile("book_genre.json", true); }
 }
 
 
@@ -62,7 +62,7 @@ class DemoProduct{
      * Sub Category item separated with coma means they share same property
      */
     static function getProductCategoryList() {
-        $product_category = DemoGenerator::getFile("product_category.json", true);
+        $product_category = FileManager1::getDatasetFile("product_category.json", true);
         $product_category['Mobile Phones and Tablets']['brandType'] = self::getBrandMobilePhoneElectronicsList();
         $product_category['Electronics / Computer']['brandType'] = self::getBrandComputerElectronicsList();
         $product_category['Fashion']['brandType'] = self::getBrandFashionList();
@@ -72,27 +72,27 @@ class DemoProduct{
 
 
     static function getProductPropertyList(){
-        return DemoGenerator::getFile("product_property.json", true);
+        return FileManager1::getDatasetFile("product_property.json", true);
     }
 
 
 
 
     static function getBrandMobilePhoneElectronicsList(){
-        return DemoGenerator::getFile("product_phone_electronics_brand.json", true);
+        return FileManager1::getDatasetFile("product_phone_electronics_brand.json", true);
     }
 
 
     static function getBrandComputerElectronicsList(){
-        return DemoGenerator::getFile("product_computer_electronics_brand.json", true);
+        return FileManager1::getDatasetFile("product_computer_electronics_brand.json", true);
     }
 
     static function getBrandFashionList(){
-        return DemoGenerator::getFile("product_fashion_brand.json", true);
+        return FileManager1::getDatasetFile("product_fashion_brand.json", true);
     }
 
     static function getBrandVehicleList(){
-        return DemoGenerator::getFile("product_vehicle_brand.json", true);
+        return FileManager1::getDatasetFile("product_vehicle_brand.json", true);
     }
 
 }
@@ -120,16 +120,6 @@ class DemoProduct{
  * Class EasyDataSetGenerator is a Faker Class
  */
 class DemoGenerator {
-
-    /**
-     * @param $fileName
-     * @param bool $convertToArray
-     * @return bool|mixed|string
-     */
-    static function getFile($fileName, $convertToArray = false){
-        $path =  __DIR__.DS.'dataset'.DS.$fileName;
-        return !$convertToArray? $path:  Array1::readFromJSON($path);
-    }
 
 
     /**
@@ -181,7 +171,7 @@ class DemoGenerator {
 
 
     public static function words($num = 3){
-        $words = DemoGenerator::getFile("word.json", true);
+        $words = FileManager1::getDatasetFile("word.json", true);
         shuffle($words);
         return array_slice($words, 0, $num);
     }
@@ -196,7 +186,7 @@ class DemoGenerator {
      * @return string First name
      */
     public static function firstName(){
-        return Array1::pickOne(DemoGenerator::getFile("first_name.json", true));
+        return Array1::pickOne(FileManager1::getDatasetFile("first_name.json", true));
     }
 
     /**
@@ -207,11 +197,11 @@ class DemoGenerator {
      * @return string Last name
      */
     public static function lastName(){
-        return Array1::pickOne(DemoGenerator::getFile("last_name.json", true));
+        return Array1::pickOne(FileManager1::getDatasetFile("last_name.json", true));
     }
 
     public static function quote(){
-        return Array1::pickOne(DemoGenerator::getFile("quote.json", true));
+        return Array1::pickOne(FileManager1::getDatasetFile("quote.json", true));
     }
 
 
@@ -420,16 +410,17 @@ class DemoGenerator {
         }, $numberString);
     }
 
-    /**
-     * Generate a random Year address.
-     *
-     * @access public
-     * @static
-     * @return string year
-     */
+
     public static function subject(){
-        return Array1::pickOne(DemoGenerator::getFile("school_subject.json", true));
+        return Array1::pickOne(FileManager1::getDatasetFile("school_subject.json", true));
     }
+
+
+    public static function password(){
+        $pass = Array1::pickOne(FileManager1::getDatasetFile("school_subject.json", true));
+    }
+
+
 
     public static function questionAndAnswer($Demo_QUESTION_TYPE = '-1', $optionCount_abcd = 4){
         if ($Demo_QUESTION_TYPE === Demo_QUESTION_TYPE::$type_random)
@@ -633,7 +624,7 @@ class DemoCountry{
      * @return array get All Town In Nigeria
      */
     static function getNigeriaStateRegionList(){
-        return DemoGenerator::getFile("nigeria_state_region.json", true);
+        return FileManager1::getDatasetFile("nigeria_state_region.json", true);
     }
 
 
@@ -642,7 +633,7 @@ class DemoCountry{
      * @return array get World list of country
      */
     static function getCountries($countryNameOnly = false){
-        $data =  DemoGenerator::getFile("country.json", true);
+        $data =  FileManager1::getDatasetFile("country.json", true);
         return $countryNameOnly? array_values($data): $data;
     }
 
@@ -654,7 +645,7 @@ class DemoCountry{
      * @return array
      */
     static function getNigeriaState($stateNameOnly = false){
-        $stateList = DemoGenerator::getFile("nigeria_state.json", true);
+        $stateList = FileManager1::getDatasetFile("nigeria_state.json", true);
         return ($stateNameOnly) ? array_values($stateList) : $stateList;
     }
 
@@ -665,7 +656,7 @@ class DemoCountry{
      * @return array
      */
     static function getCountryPhoneNumberCode($numberCodeOnly = false){
-        $data = DemoGenerator::getFile("country_phone_number_code.json", true);
+        $data = FileManager1::getDatasetFile("country_phone_number_code.json", true);
         return $numberCodeOnly? array_values($data): $data;
     }
 

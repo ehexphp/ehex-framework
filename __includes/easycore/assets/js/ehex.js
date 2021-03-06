@@ -1532,7 +1532,7 @@ Ajax1.loadElement = function(url, $elementId){
 
 /**
  * Use to load Option to Select Box Directly
- *  Example {!! HtmlForm1::addSelect('Store Type', ['name'=>"store", 'value'=>StoreType::getKeyValue(), 'onchange'=>'Ajax1.loadElementSelectOption("'.Form1::callApi('StoreCategory::getKeyValue()?token='.token()).'&store_type_id=" + this.value )' ]) !!}
+ *  Example {!! HtmlForm1::addSelect('Store Type', ['name'=>"store", 'value'=>StoreType::getKeyValue(), 'onchange'=>'Ajax1.loadElementSelectOption("'.Form1::callApi('StoreCategory::getKeyValue()?_token='.token()).'&store_type_id=" + this.value )' ]) !!}
  * @param $urlToKeyValueJsonArray
  * @param $elementId
  */

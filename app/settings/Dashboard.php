@@ -13,7 +13,7 @@ class Dashboard {
      * Model Class to exclude from showing in dashboard and route.
      * @var array
      */
-    public static $exclude_model = [];
+    public static $exclude_models = [];
 
 
      /**
@@ -174,7 +174,7 @@ class Dashboard {
      */
     static function getDashboardModelList(){
         $all_model = app_class_with_interface(Model1ActionInterface::class, [AuthModel1::class, Model1::class]);
-        return array_diff($all_model, self::$exclude_model);
+        return array_diff($all_model, self::$exclude_models);
     }
 
     /**

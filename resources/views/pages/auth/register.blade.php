@@ -37,7 +37,7 @@
                     <div class="col-sm-6 "> {!! HtmlForm1::addSelect('Country', [ 'name'=>"country", 'selected'=>'Nigeria', 'value'=>Array1::reUseValueAsKey(DemoCountry::getCountries()), 'required']) !!}</div>
                 </div>
 
-                <div  style="margin:15px 0 10px 0;" class="clearfix"><a href="{{ routes()->login }}" class="pull-right"><i class="fa fa-lock" aria-hidden="true"></i> Login</a></div>
+                <div  style="margin:15px 0 10px 0;" class="clearfix"><a href="{{ routes()->login }}" up-target="main" class="pull-right"><i class="fa fa-lock" aria-hidden="true"></i> Login</a></div>
                 {!! HtmlForm1::close('Register Account', ['class'=>'btn btn-block btn-primary']) !!}
             </div>
         </div>

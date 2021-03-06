@@ -463,7 +463,7 @@ EOSTRING;
         // output
         $formGroupAttribute['id'] = isset($formGroupAttribute['id'])? $formGroupAttribute['id']: String1::if_empty($inputAttribute['id'], Math1::getUniqueId(), $inputAttribute['id'].'_group');
         $optionGroupAttr = @Array1::toHtmlAttribute(@array_merge(['class'=>static::$THEME_FORM_GROUP_CLASS], $formGroupAttribute));
-        $pageContents = "<div $optionGroupAttr> <label $labelAttr>".($isCheckBox? $attr: '')." &nbsp; $labelName</label> ".($isCheckBox? '': $attr)."</div> ";
+        $pageContents = "<div $optionGroupAttr> <label $labelAttr>".($isCheckBox? " &nbsp; ".$attr: '')."$labelName</label> ".($isCheckBox? '': $attr)."</div> ";
         return self::outputAs($pageContents);
     }
 
@@ -774,7 +774,7 @@ class HtmlWidget1 {
     public static function fileDeleteBox($model1FileLocatorId = -1, $filePath = '/public_html/image.jpg', $previewUrl = null,  $style = 'height:150px;width:150px;', $labelName = 'Delete Image'){
         $uniqueImageId = 'image_preview_'.Math1::getUniqueId();
         $fileName = FileManager1::getFileName($filePath);
-        $ajaxLink = Form1::callApi(exApiController1::class, "deleteFile()?token=".token()."&file_locator_id=$model1FileLocatorId&file_path=".urlencode($filePath) );
+        $ajaxLink = Form1::callApi(exApiController1::class, "deleteFile()?_token=".token()."&file_locator_id=$model1FileLocatorId&file_path=".urlencode($filePath) );
         $previewUrl = $previewUrl? $previewUrl: HtmlAsset1::getImageThumb();
         return <<< EOSTRING
             <!-- Call delete api-->
@@ -822,14 +822,14 @@ EOSTRING;
         $defaultImageForNotImageFile = shared_asset('images/icons/success.png');
 
         //dd($existingImagePath);
-        $deleteButton = ($fileUrl_filterOutDemoImage && $existingImagePath && !String1::contains('/shared/', $existingImagePath))? "<button type='button' onclick='Popup1.confirmLink(`Delete File`, `Will you like to delete file and refresh page?`, `".Form1::callController(exApiController1::class, "deleteFile()?token=".token()."&file_path=".urlencode($existingImagePath) )."`)' class='btn btn-danger  file_action' style='font-weight:800;'><!-- display: none -->X</button>": '';
+        $deleteButton = ($fileUrl_filterOutDemoImage && $existingImagePath && !String1::contains('/shared/', $existingImagePath))? "<button type='button' onclick='Popup1.confirmLink(`Delete File`, `Will you like to delete file and refresh page?`, `".Form1::callController(exApiController1::class, "deleteFile()?_token=".token()."&file_path=".urlencode($existingImagePath) )."`)' class='btn btn-danger  file_action' style='font-weight:800;'><!-- display: none -->X</button>": '';
         $fileUrlInputName = String1::endsWith('[]', trim($fileInputName))? String1::replaceEnd(trim($fileInputName), '[]', '').'_url[]': trim($fileInputName).'_url';
         $labelName = !empty($labelName)? '<div style="margin-top:3px;"><i class="fa fa-upload"></i> '.$labelName.'</div>': '';
         $noHeightInStyle = String1::replace($image_style, 'height','hgt');
 
 
         return <<< HTML
-            <label class="btn btn-default" style="overflow: auto; $noHeightInStyle"> <!--  onmousemove="$(this).find('.file_action').show()" onmouseout="$(this).find('.file_action').hide()" -->
+            <label class="btn btn-default" style="border:1px dotted #aaa;border-radius: 20px; overflow: auto; $noHeightInStyle"> <!--  onmousemove="$(this).find('.file_action').show()" onmouseout="$(this).find('.file_action').hide()" -->
                 <input style="display: none; width:99%;" onchange="Picture1.uploadPreview(this, null, '$defaultImageForNotImageFile')" type="file" name="$fileInputName" />
                 <img style="$image_style"  src="$demoPreviewImage" id="$demoImage" />
                 <div> <div class="input-group"><input name="$fileUrlInputName" class="form-control field_url" placeholder="or paste file url" value="$fileUrl_filterOutDemoImage" />$deleteButton</div> $labelName </div>
@@ -1207,7 +1207,6 @@ class HtmlAsset1{
     static function getSuccessIcon(){   return FileManager1::urlPathExistsOr( function_exists('shared_asset')? shared_asset('images/icons/success.png')     : '', static::getImageThumb()); }
     static function getCloseIcon(){     return FileManager1::urlPathExistsOr( function_exists('shared_asset')? shared_asset('images/icons/close.png')       : '', static::getImageThumb()); }
     static function getError404(){     return FileManager1::urlPathExistsOr( function_exists('shared_asset')? shared_asset('images/error/error404.jpg')     : '', static::getImageThumb()); }
-
 }
 
 

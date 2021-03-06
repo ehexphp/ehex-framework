@@ -47,20 +47,12 @@ function framework_info(){
         'version'=>'2.0',
         'website'=>'https://ehex.xamtax.com',
         'author'=>[
-            'name'=>'Samson Iyanu',
+            'name'=>'Samson Oyetola',
             'alias'=>'Samtax',
-            'email'=>'samsoniyanu@hotmail.com',
+            'email'=>'hello@samsonoyetola.com',
             'website'=>'https://xamtax.com',
         ],
     ]);
-}
-
-
-function pre($arr,$them=1){
-    switch ($them) { default:    $color='#2295bc'; $background='#e4e7e7'; break; }?>
-    <pre style="direction: ltr;background:<?= $background;?>;color:<?= $color;?>;
-    max-width: 90%;margin: 30px auto;overflow:auto;
-    font-family: Monaco,Consolas, 'Lucida Console',monospace;font-size: 16px;padding: 20px;"><?php print_r($arr); echo "</pre>";
 }
 
 /**
@@ -292,11 +284,22 @@ function old($inputName = '', $defaultValueOnFailed = ''){ return String1::is_em
  */
 function request(array $insertOrReplaceKeyValue = [], array $filterCheckBoxNameList = [], array $filterFileUploadNameList = []){
     $request = Object1::toArrayObject(true, array_merge($_REQUEST, $_FILES, (empty($_POST)? Array1::makeArray(@json_decode(file_get_contents('php://input'))): []), $insertOrReplaceKeyValue));
-    if(!empty($filterCheckBoxNameList))  foreach ($filterCheckBoxNameList as $value) $request[$value] = String1::toBoolean($request->{$value}, 1, 0);
+    if(!empty($filterCheckBoxNameList))  foreach ($filterCheckBoxNameList as $value) $request[$value] = isset($request[$value])? 1 : 0;
     if(!empty($filterFileUploadNameList))  foreach ($filterFileUploadNameList as $value) $request[$value] = Array1::normalizeLinearRequestList($_FILES[$value]);
     return $request;
 }
 
+/**
+ * Get Request headers
+ * @param null $key
+ * @param null $default
+ * @return mixed
+ */
+function request_headers($key = null, $default = null){
+    $header = Function1::runAndCache( "getallheaders");
+    if(!$key) return Object1::toArrayObject($header);
+    else return isset_or($header[$key], $default);
+}
 
 
 
@@ -352,11 +355,11 @@ function decode_data($cipheredData = '', $password = Config1::APP_KEY) { $parts 
  * @return string
  */
 function token(){
-    if(!empty($_SESSION['token'])) return $_SESSION['token'];
+    if(!empty($_SESSION['_token'])) return $_SESSION['_token'];
     else{
-        $_SESSION['token'] = bin2hex(openssl_random_pseudo_bytes(32));//.'____'.String1::encodeStringToNumber(Url1::backUrl()); //$_SESSION['token'] =  bin2hex(random_bytes(32)); //md5(Form1::encode_data(Math1::getUniqueId()));
-        $_SESSION['token_time'] = time();
-        return $_SESSION['token'];
+        $_SESSION['_token'] = bin2hex(openssl_random_pseudo_bytes(32));//.'____'.String1::encodeStringToNumber(Url1::backUrl()); //$_SESSION['token'] =  bin2hex(random_bytes(32)); //md5(Form1::encode_data(Math1::getUniqueId()));
+        $_SESSION['_token_time'] = time();
+        return $_SESSION['_token'];
     }
 }
 
@@ -369,20 +372,19 @@ function token(){
  * @return bool
  */
 function is_token_valid($token = null, $moreValidation = true){
-    $token = $token? $token: String1::isset_or($_POST['token'], '');
+    $token = $token? $token: String1::isset_or($_POST['_token'], '');
     $is_match = hash_equals(token(), $token);
     if($is_match){
         if(is_ajax_request() || !$moreValidation) return true;
         else{
-            //dd(  explode('____', token())[1] != String1::encodeStringToNumber(Url1::backUrl())  );
-            //if(explode('____', token())[1] != String1::encodeStringToNumber(Url1::backUrl())) return false;
-            //if( $moreValidation && ((time()-$_SESSION['token_time']) > 1500) ) die( Console1::println("Error, Token Validation Timeout!. Please resend your request") );
+            //if( $moreValidation && ((time()-$_SESSION['_token_time']) > 1500) ) die( Console1::println("Error, Token Validation Timeout!. Please resend your request") );
 
-            unset($_SESSION['token'], $_SESSION['token_time']);
+            if((time()-$_SESSION['_token_time']) > 5000)
+                unset($_SESSION['_token'], $_SESSION['_token_time']);
             return true;
         }
     }
-    unset($_SESSION['token'], $_SESSION['token_time']);
+    unset($_SESSION['_token'], $_SESSION['_token_time']);
     return false;
 }
 
@@ -398,7 +400,7 @@ function csrf_token(){ return token(); }
  * Get Session Token Form, Hidden form with token field
  * @return null|string
  */
-function form_token(){ return HtmlForm1::addHidden('token', token()); }
+function form_token(){ return HtmlForm1::addHidden('_token', token()); }
 
 /**
  * Generate Url to Form Controller
@@ -569,9 +571,6 @@ function plugin_asset($file_path_name = '', $assets_folder_name = 'assets', $plu
 }
 
 
-
-
-
 /**
  * if shared_assets, create symlink to assets and put under website. (otherwise move __include folder to your website) because assets file must be a subdirectory under website domain and not outside website folder wic we don't knw url location for.
  * normalizeSharedPath('', '/shared/resources/plugins/', 'plugin_asset');
@@ -579,7 +578,6 @@ function plugin_asset($file_path_name = '', $assets_folder_name = 'assets', $plu
  * @param string $shared_path_delimiter
  * @param string $destination_asset_folder_name
  * @return string
- *
  */
 function normalizeSharedPath($file_system_path = '', $shared_path_delimiter = '/shared/resources/', $destination_asset_folder_name = 'shared_asset_list'){
     if(String1::contains($shared_path_delimiter, $file_system_path) && String1::startsWith(Config1::INCLUDES_PATH, '../') ){
@@ -610,7 +608,7 @@ function normalizeSharedPath($file_system_path = '', $shared_path_delimiter = '/
 function current_resources_asset_path($file_path_name = '', $assets_folder_name = 'assets', $app_path_delimiter = '/resources/views/layouts/',  $shared_path_delimiter = '/shared/resources/', $destination_asset_folder_name = 'shared_asset_list', $debug_backtrace = 0){
     $current_file_full_path = debug_backtrace(null, 2)[$debug_backtrace]['file'];
     // split and confirm if is layout path
-    if(!String1::contains($app_path_delimiter, $current_file_full_path)) die(Console1::println('Current Layout Assets function Can only be run in Layout Folder, to retrieve assets of the layout. E.g Can be use to retrieve assets/css for plugin instead of using layout_asset("layout-name")'));
+    if(!String1::contains($app_path_delimiter, $current_file_full_path)) die(Console1::println('Current Layout Assets function Can only be run in the layout folder to retrieve assets of the layout. e.g Can be use to retrieve assets/css for plugin instead of using layout_asset("layout-name")'));
     // extract layout name
     $slitter = explode($app_path_delimiter, $current_file_full_path);
     $full_layout =  $slitter[0].$app_path_delimiter.explode(DS, $slitter[1])[0];
@@ -658,7 +656,7 @@ function current_layout_asset($file_path_name = '', $assets_folder_name = 'asset
 function register_path_for_layout_asset($optional_layoutViewPath_or_layoutFullPath = null, $backtrace_index = 0){
     if($optional_layoutViewPath_or_layoutFullPath) return exBlade1::$CURRENT_LAYOUT_PATH = dirname(String1::contains( DS, $optional_layoutViewPath_or_layoutFullPath)? $optional_layoutViewPath_or_layoutFullPath: viewpath_to_path($optional_layoutViewPath_or_layoutFullPath) );
     $allData = array_flip(exBlade1::$LOADED_VIEW_AND_CACHE_LIST);
-    $cachePath = @debug_backtrace(null, 2)[$backtrace_index]['file'];
+    $cachePath = FileManager1::normalizeFilePathSeparator(@debug_backtrace(null, 2)[$backtrace_index]['file']);
     if(isset($allData[$cachePath])) return exBlade1::$CURRENT_LAYOUT_PATH = dirname($allData[$cachePath]);
     else return die(Console1::println('Error Occurred : Assets Path Not Found, register_path_for_layout_asset() template layout is not properly set, Please remove register_path_for_layout_asset() in template or visit ehex documentation for proper usage'));
 }
@@ -779,6 +777,9 @@ function path_shared_asset_url($path = ''){
     }else{
         $shared_link_path = PATH_SHARED_RESOURCE.'/assets';
     }
+
+
+
     return Url1::pathToUrl($shared_link_path).(    (empty($path)? '': '/'.trim($path, '/')));
 }
 

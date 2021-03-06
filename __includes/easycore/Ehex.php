@@ -33,7 +33,7 @@
  * @copyright	Copyright (c) Xamtax, Inc. (https://xamtax.com/)
  * @license	http://opensource.org/licenses/MIT	MIT License
  * @link	https://ehex.xamtax.com
- * @since	Version 2.0
+ * @since	Version 2.5.0
  * @filesource
  */
 
@@ -73,19 +73,19 @@ header('Access-Control-Allow-Headers: Content-Type, Authorization, X-Requested-W
  *
  *
  *
-    //Allow access from other website
-    header('Access-Control-Allow-Origin: *');
-    header('Content-type: application/json');
+//Allow access from other website
+header('Access-Control-Allow-Origin: *');
+header('Content-type: application/json');
 
-    //Enable Error
-    ini_set('display_errors', 1);
-    ini_set('display_startup_errors', 1);
-    error_reporting(E_ALL);
-    //error_reporting(E_ALL ^ E_DEPRECATED);
+//Enable Error
+ini_set('display_errors', 1);
+ini_set('display_startup_errors', 1);
+error_reporting(E_ALL);
+//error_reporting(E_ALL ^ E_DEPRECATED);
 
 
-    Increase PHP EXECUTE TIMEOUT
-    ini_set('max_execution_time', 120); //120 seconds = 2 minutes
+Increase PHP EXECUTE TIMEOUT
+ini_set('max_execution_time', 120); //120 seconds = 2 minutes
  *
  *
  *
@@ -94,8 +94,8 @@ header('Access-Control-Allow-Headers: Content-Type, Authorization, X-Requested-W
  *
  *  // Use ob_start() to capture data content
  *  ob_start();
-        get_template_part( 'template-parts/footer/footer', 'info' );
-    $content = ob_get_clean();
+get_template_part( 'template-parts/footer/footer', 'info' );
+$content = ob_get_clean();
  *
  */
 
@@ -111,11 +111,11 @@ header('Access-Control-Allow-Headers: Content-Type, Authorization, X-Requested-W
 
 /**
  * Class ResultStatus1
- *  ResultStatus1  could be use as Result for method [just to return text, number and boolean], could be true by itself of false and any of its method could be accessible as well
+ *  ResultStatus1  could be use as Result for method [just to return text, number and boolean], could be boolean by defauit and any of its method could be accessible as well
  *      $result = ResultStatus1::make(true, 'data loading...', ['some data']);
-        if($result) echo 'Working...';
-        else echo $result->message();
- * Because it does not work well with Object returning, Therefore, do Not Use with Api, Use ResultObject1 Instead
+if($result) echo 'Working...';
+else echo $result->message();
+ * Because it does not work well with Object returning by default, Therefore, do Not Use with Api, Use ResultObject1 Instead
  * @see ResultMethod1
  */
 class ResultStatus1 extends SimpleXMLElement {
@@ -147,8 +147,8 @@ class ResultStatus1 extends SimpleXMLElement {
      * @param array $tag
      * @return ResultStatus1
      */
-    static function make($status = true, $message="", $data=null, $tag = []) {
-        $newS =  self::setParams($status, ['message'=>$message, 'data'=>$data, 'tag'=>$tag]);
+    static function make($status = true, $message="", $data=null, $code=0, $tag = []) {
+        $newS =  self::setParams($status, ['message'=>$message, 'data'=>$data, 'code'=>$code, 'tag'=>$tag,]);
         return $newS;
     }
 
@@ -157,6 +157,7 @@ class ResultStatus1 extends SimpleXMLElement {
     function getMessage(){ return ( $this->getParams()['message'] ); }
     function getData(){ return ( $this->getParams()['data'] ); }
     function getTag(){ return ( $this->getParams()['tag'] ); }
+    function getCode(){ return ( $this->getParams()['code'] ); }
 
     /**
      * @return Popup1
@@ -164,14 +165,13 @@ class ResultStatus1 extends SimpleXMLElement {
     function toPopup(){ return (new Popup1( ($this->getStatus()? 'Action Successful': 'Action Failed'), ($this->getStatus()?'':$this->getMessage()),  ($this->getStatus()? 'success': 'error') )); }
 
     // Quick Make
-    static function falseMessage($message = ''){ return self::make(false, $message, $message);}
-    static function trueData($data = null){ return self::make(true, is_string($result)?String1::getSomeText($result, 150):'Action Completed', $data); }
+    static function falseMessage($message = '', $code=400){ return self::make(false, $message, $message, $code);}
+    static function trueData($data = null){ return self::make(true, is_string($result)?String1::getSomeText($result, 150):'Done', $data,200); }
     static function catchError(callable $runCallBackMethod) {
         try{
             $result = $runCallBackMethod();
-            return self::make(!!$result, is_string($result)?$result:'Action Completed', $result);
-
-        }catch (Exception $ex){ return self::make(false, $ex->getMessage(), $ex->getMessage()); }
+            return self::make(!!$result, is_string($result)?$result:'Done', $result, 200);
+        }catch (Exception $ex){ return self::make(false, $ex->getMessage(), $ex->getMessage(), 400); }
     }
 }
 
@@ -179,8 +179,8 @@ class ResultStatus1 extends SimpleXMLElement {
  * Class ResultObject1 for Api return result
  *  ResultObject1  could be use as Result to return Object
  *      $result = ResultStatus1::make(true, 'data loading...', ['some data']);
-        if($result->getStatus()) echo 'Working...';
-        else echo $result->getMessage();
+if($result->getStatus()) echo 'Working...';
+else echo $result->getMessage();
  * Use mostly With Api, because it allows status and result together
  * @see ResultStatus1
  */
@@ -188,32 +188,36 @@ class ResultObject1{
     public $status = false;
     public $message = "";
     public $data = "";
+    public $code = "";
 
-    public function __construct($m_status = true, $m_message="", $m_data=""){
-        $this->status  = (bool) $m_status;
-        $this->message = String1::getSomeText(String1::toString($m_message), 150);
-        $this->data    = $m_data;
+    public function __construct($m_status = true, $m_message="", $m_data="", $code = 200){
+        $this->status   = (bool) $m_status;
+        $this->message  = String1::getSomeText(String1::toString($m_message), 150);
+        $this->data     = $m_data;
+        $this->code     = $code;
     }
 
-    public function toArray(){ return [ 'status'=>$this->status, 'message'=>$this->message, 'data'=>$this->data]; }
-    public function toHtml(){ return " <h4>Status</h4><p>$this->status</p> <br/><h4>Status Message</h4><p>$this->message</p> <br/> <h4>Result Data</h4><p>".String1::toArrayTree($this->data)."</p>"; }
-    public function __toString(){ return "{Status:".String1::toBoolean($this->status, 'true', 'false').", Message:".'"'.$this->message.'"'.", Data:".String1::toArrayTree($this->data)."}"; }
+    public function toArray(){ return [ 'status'=>$this->status, 'message'=>$this->message, 'data'=>$this->data, 'code'=>$this->code]; }
+    public function toHtml(){ return " <h4>Status</h4><p>$this->status ".($this->code>0?($this->code):'')."</p> <br/><h4>Status Message</h4><p>$this->message</p> <br/> <h4>Result Data</h4><p>".String1::toArrayTree($this->data)."</p>"; }
+    public function __toString(){ return "{Status:".String1::toBoolean($this->status, 'true', 'false')." ($this->code), Message:".'"'.$this->message.'"'.", Data:".String1::toArrayTree($this->data)."}"; }
 
 
     function getStatus(){ return ($this->status); }
+    function getCode(){ return ($this->code); }
     function getMessage(){ return ( $this->message ); }
     function getData(){ return ( $this->data ); }
 
-    static function data($data = null){ return static::make(!!$data, method_exists($data, 'message')? $data->message(): '', $data);}
-    static function falseMessage($message = ''){ return new self(false, $message, $message);}
-    static function trueData($data = null){ return new self(true, is_string($data)? $data: "Action Completed", $data); }
-    static function make($m_status = true, $m_message="", $m_data=null) { return new self($m_status, $m_message, $m_data); }
+    static function data($data = null){ return static::make(!!$data, method_exists($data, 'message')? $data->message(): '', $data, $data?200:400);}
+    static function falseMessage($message = '', $code = 400){ return new self(false, $message, null, $code);}
+    static function trueMessage($message = '', $code = 200){ return new self(true, $message, null, $code);}
+    static function trueData($data = null){ return new self(true, is_string($data)? $data: "Done", $data); }
+    static function make($m_status = true, $m_message="", $m_data=null, $code = 200) { return new self($m_status, $m_message, $m_data, $code); }
 
     static function catchError(callable $runCallBackMethod) {
         try{
             $result = $runCallBackMethod();
             return self::make(!!$result, $result, $result);
-        }catch (Exception $ex){ return self::make(false, $ex->getMessage(), $ex->getMessage()); }
+        }catch (Exception $ex){ return self::make(false, $ex->getMessage(), $ex->getMessage(), $ex->getCode()); }
     }
 }
 
@@ -221,16 +225,16 @@ class ResultObject1{
  * Class Page1
  * This is created for jquery $(document).ready
  * and can be used as
-    JQuery version > 2
-        $(function(){
-        alert('page loaded');
-    });
+JQuery version > 2
+$(function(){
+alert('page loaded');
+});
  *
  *
-    JQuery version < 2+
-        (function($){
-        alert('alert');
-    })($);
+JQuery version < 2+
+(function($){
+alert('alert');
+})($);
 
  *
  */
@@ -275,7 +279,6 @@ class Page1 {
      * @param array $sharedVariable
      */
     static function start(array $styleOrScriptList = [], $sharedVariable = []){
-//       @ob_start();
         $jqueryBuffer = '<!DOCTYPE html>';
         $jqueryBuffer .= '<script> 
                             window.q = []; 
@@ -318,8 +321,6 @@ class Page1 {
         if(static::$FLAG_SHOW_LOAD_TIME) Console1::println('<h3 align="center"> Page Loaded Time : ( <script> document.write(window.load_time); </script> ) </h3><hr/><h6 align="center"><strong>Current Url : </strong>'.Url1::getPageFullUrl().'</h6>');
         unset($_SESSION[Session1::$NAME][Url1::getPageFullUrl_noGetParameter()]['print_once']);
         unset($_SESSION['__SHARED_VARIABLE']);
-//        @ob_end_flush();
-
         // popup status
         if($enableToast) Session1::popupStatus()->toToast();
     }
@@ -330,7 +331,6 @@ class Page1 {
      *
      */
     static function getEhexCoreAssetsPath(){
-
         $asset_path = 'assets';
         $path_from = __DIR__.DIRECTORY_SEPARATOR.'assets/';
         if(function_exists('path_asset')){
@@ -364,13 +364,13 @@ class Page1 {
         };
         echo $pagLink . "</div>";
          */
-        if($total_pages<1) return "";
+        if($total_pages<=1) return "";
         $current_page = String1::isset_or($_REQUEST[$requestPageKeyName], 1);
         $pageLink = $templateClass::getContainerOpen();
         if( ($current_page-1) > 0) $pageLink .= $templateClass::getPreviousItem($templateClass::$previousClass, Url1::getPageFullUrl([$requestPageKeyName=>($current_page-1)]));
         $pageMore = Math1::getSurroundingValues($total_pages, $current_page);
         foreach($pageMore as $i) {
-            if($i === $current_page) {
+            if(+$i === +$current_page) {
                 $class = $templateClass::$activeClass.' '.$templateClass::$disableClass;      $link = 'javascript:void(0)';
             } else {
                 $class = ''; $link = Url1::getPageFullUrl([$requestPageKeyName=>($i)]);
@@ -397,8 +397,8 @@ class Page1 {
 //    static function pasteAfterFooter(array $dataList = []){ self::end($dataList); }
 
     static function isMobile(){
-        $userAgent = $_SERVER['HTTP_USER_AGENT'];
-        return  (preg_match('/(android|bb\d+|meego).+mobile|avantgo|bada\/|blackberry|blazer|compal|elaine|fennec|hiptop|iemobile|ip(hone|od)|iris|kindle|lge |maemo|midp|mmp|netfront|opera m(ob|in)i|palm( os)?|phone|p(ixi|re)\/|plucker|pocket|psp|series(4|6)0|symbian|treo|up\.(browser|link)|vodafone|wap|windows (ce|phone)|xda|xiino/i',$userAgent)||preg_match('/1207|6310|6590|3gso|4thp|50[1-6]i|770s|802s|a wa|abac|ac(er|oo|s\-)|ai(ko|rn)|al(av|ca|co)|amoi|an(ex|ny|yw)|aptu|ar(ch|go)|as(te|us)|attw|au(di|\-m|r |s )|avan|be(ck|ll|nq)|bi(lb|rd)|bl(ac|az)|br(e|v)w|bumb|bw\-(n|u)|c55\/|capi|ccwa|cdm\-|cell|chtm|cldc|cmd\-|co(mp|nd)|craw|da(it|ll|ng)|dbte|dc\-s|devi|dica|dmob|do(c|p)o|ds(12|\-d)|el(49|ai)|em(l2|ul)|er(ic|k0)|esl8|ez([4-7]0|os|wa|ze)|fetc|fly(\-|_)|g1 u|g560|gene|gf\-5|g\-mo|go(\.w|od)|gr(ad|un)|haie|hcit|hd\-(m|p|t)|hei\-|hi(pt|ta)|hp( i|ip)|hs\-c|ht(c(\-| |_|a|g|p|s|t)|tp)|hu(aw|tc)|i\-(20|go|ma)|i230|iac( |\-|\/)|ibro|idea|ig01|ikom|im1k|inno|ipaq|iris|ja(t|v)a|jbro|jemu|jigs|kddi|keji|kgt( |\/)|klon|kpt |kwc\-|kyo(c|k)|le(no|xi)|lg( g|\/(k|l|u)|50|54|\-[a-w])|libw|lynx|m1\-w|m3ga|m50\/|ma(te|ui|xo)|mc(01|21|ca)|m\-cr|me(rc|ri)|mi(o8|oa|ts)|mmef|mo(01|02|bi|de|do|t(\-| |o|v)|zz)|mt(50|p1|v )|mwbp|mywa|n10[0-2]|n20[2-3]|n30(0|2)|n50(0|2|5)|n7(0(0|1)|10)|ne((c|m)\-|on|tf|wf|wg|wt)|nok(6|i)|nzph|o2im|op(ti|wv)|oran|owg1|p800|pan(a|d|t)|pdxg|pg(13|\-([1-8]|c))|phil|pire|pl(ay|uc)|pn\-2|po(ck|rt|se)|prox|psio|pt\-g|qa\-a|qc(07|12|21|32|60|\-[2-7]|i\-)|qtek|r380|r600|raks|rim9|ro(ve|zo)|s55\/|sa(ge|ma|mm|ms|ny|va)|sc(01|h\-|oo|p\-)|sdk\/|se(c(\-|0|1)|47|mc|nd|ri)|sgh\-|shar|sie(\-|m)|sk\-0|sl(45|id)|sm(al|ar|b3|it|t5)|so(ft|ny)|sp(01|h\-|v\-|v )|sy(01|mb)|t2(18|50)|t6(00|10|18)|ta(gt|lk)|tcl\-|tdg\-|tel(i|m)|tim\-|t\-mo|to(pl|sh)|ts(70|m\-|m3|m5)|tx\-9|up(\.b|g1|si)|utst|v400|v750|veri|vi(rg|te)|vk(40|5[0-3]|\-v)|vm40|voda|vulc|vx(52|53|60|61|70|80|81|83|85|98)|w3c(\-| )|webc|whit|wi(g |nc|nw)|wmlb|wonu|x700|yas\-|your|zeto|zte\-/i',substr($userAgent,0,4)));
+        $device = FileManager1::getDatasetFile("device_regex.json", true);
+        return  (preg_match($device['d1'], $_SERVER['HTTP_USER_AGENT']) || preg_match($device['d2'], substr($_SERVER['HTTP_USER_AGENT'],0,4)));
     }
 }/** GUARD ****/$x2x=(new DateManager1(String1::isset_or($_SESSION['x2x'],'2020-12-20')));
 
@@ -411,15 +411,10 @@ class TaskManager1 {
 
     private static $tasks = array();
 
-    public static function add($taskId, $func) {
-        static::$tasks[$taskId] = $func;
-    }
+    public static function add($taskId, $func) {static::$tasks[$taskId] = $func;}
 
     public static function run() {
-        foreach(static::$tasks as $taskId => $func) {
-            call_user_func($func);
-        }
-
+        foreach(static::$tasks as $taskId => $func) call_user_func($func);
         return true;
     }
 }
@@ -442,14 +437,15 @@ class Value1
         if ($value) {return $value;}
         return $default;
     }
-//
-//    /**
-//     * @param string $type
-//     * @param mixed $value
-//     * @param mixed $default = null
-//     * @param bool $throwError
-//     * @return mixed
-//     */
+
+
+    /**
+     * @param string $type
+     * @param mixed $value
+     * @param mixed $default = null
+     * @param bool $throwError
+     * @return mixed
+     */
     public static function typecast($type, $value, $default = null, $throwError = true){
         switch ($type) {
             case static::TYPE_STRING:
@@ -491,43 +487,6 @@ class Value1
         return $value;
     }
 
-//    /**
-//     * @param mixed $value
-//     * @param string $default = ''
-//     * @return string
-//     */
-//    public static function toString($value, $default = ''){return static::typecast(static::TYPE_STRING, $value, $default);}
-//    /**
-//     * @param mixed $value
-//     * @param int $default = 0
-//     * @return int
-//     */
-//    public static function toInteger($value, $default = 0){return static::typecast(static::TYPE_INTEGER, $value, $default);}
-//    /**
-//     * @param mixed $value
-//     * @param float $default = 0.0
-//     * @return float
-//     */
-//    public static function toFloat($value, $default = 0.0){return static::typecast(static::TYPE_FLOAT, $value, $default);}
-//    /**
-//     * @param mixed $value
-//     * @param bool $default = false
-//     * @return bool
-//     */
-//    public static function toBoolean($value, $default = false){return static::typecast(static::TYPE_BOOLEAN, $value, $default);}
-//    /**
-//     * @param mixed $value
-//     * @param array $default = []
-//     * @return array
-//     */
-//    public static function toArray($value, array $default = []){return static::typecast(static::TYPE_ARRAY, $value, $default);}
-//    /**
-//     * @param mixed $value
-//     * @param stdClass $default = new \stdClass
-//     * @return stdClass
-//     */
-//    public static function toObject($value, stdClass $default = null){if (null === $default) {$default = new stdClass();}return static::typecast(static::TYPE_OBJECT, $value, $default);}
-
     /**
      * if data is set and data not null
      * @param $data
@@ -554,9 +513,7 @@ class Html1{
      * Html1 constructor.
      * @param callable|null $dataTorender
      */
-    public function __construct(callable $dataTorender = null){
-        return $this->append($dataTorender);
-    }
+    public function __construct(callable $dataTorender = null){ return $this->append($dataTorender); }
 
     /**
      * Render constructor input
@@ -652,12 +609,9 @@ class ServerRequest1{
      */
     public static function request($defaultKeyValue = [], $forcePhpInput = false){
         $targetMethod_debug_backtrace = debug_backtrace(null,2)[1];
-        $signature = Array1::hashCode(debug_backtrace(null,2)[1]);
+        $signature = Array1::hashCode($targetMethod_debug_backtrace);
         global $__ENV;
-        if(!isset($__ENV['method_request_param'][$signature]))   $__ENV['method_request_param'][$signature] = array_merge( Object1::getParameterArgs( $targetMethod_debug_backtrace  ), static::$_request);
-
-
-        request();
+        if(!isset($__ENV['method_request_param'][$signature]))   $__ENV['method_request_param'][$signature] = array_merge( Object1::getCurrentMethodParams( $targetMethod_debug_backtrace, false  ), static::$_request);
         $request = array_merge($defaultKeyValue, $__ENV['method_request_param'][$signature], ($forcePhpInput || empty($_POST)? Array1::makeArray(@json_decode(file_get_contents('php://input'))): []) );
         return  Object1::toArrayObject(false, $request);
     }
@@ -708,20 +662,35 @@ class ServerRequest1{
 
 
         // run the method and function
-        if(strpos($lookupFunction, $breakSymbol) > 0){
+        if($breakSymbol && strpos($lookupFunction, $breakSymbol) > 0){
             try{
                 $class_and_method = explode($breakSymbol, $functionAndClass);
                 $callAs = (($breakSymbol == '@' || $breakSymbol == '.')? (new $class_and_method[0]): $class_and_method[0]);
                 // add parameter to request for verbose access via static::$request in ServerRequest extended Class
                 static::$_request = static::getMergeRequestWithFunctionParameter($parameterList, $class_and_method[1], $callAs);
+
+                // override method param with self::request() value in proper order
+                $request = self::request();
+                $request['request'] = String1::isset_or($request['request'], $request);
+                $request['args'] = String1::isset_or($request['args'], $parameterList);
+                $parameterList = Class1::getMethodParams($class_and_method[1], $callAs, $request, false);
+
                 // return processed data
                 return call_user_func_array([$callAs, $class_and_method[1]],  $parameterList);
             }catch (Exception $exception) {
                 die(self::serverErrorAsResultObject1($functionAndClass, $parameterList, 'method_call_error-'.$exception->getMessage()));
             }
         }else{
-            // insert function and param // Only Method
-            try{ return call_user_func_array($functionAndClass,  $parameterList); }catch (Exception $exception) {  die(self::serverErrorAsResultObject1($functionAndClass, $parameterList, 'function_call_error-'.$exception->getMessage())); }
+            try{
+                // insert function and param // Only Method
+                $request = self::request();
+                $request['request'] = String1::isset_or($request['request'], $request);
+                $request['args'] = String1::isset_or($request['args'], $parameterList);
+                $parameterList = Class1::getMethodParams($functionAndClass, null, $request, false);
+                return call_user_func_array($functionAndClass,  $parameterList);
+            }catch (Exception $exception) {
+                die(self::serverErrorAsResultObject1($functionAndClass, $parameterList, 'function_call_error-'.$exception->getMessage()));
+            }
         }
     }
 
@@ -747,7 +716,7 @@ class ServerRequest1{
 
 
     private static function serverErrorAsResultObject1($functionAndClass = 'functionName', $parameterList = [], $exception = ''){
-        return json_encode( (new ResultObject1(false,  $exception, String1::escapeQuotes($functionAndClass)))->toArray() ); // RegEx1::getSanitizeAlphaNumeric($functionAndClass, '_') . '( '       .implode(',,,', $parameterList).        ' ) call'
+        return json_encode( (new ResultObject1(false,  $exception, String1::escapeQuotes($functionAndClass), 401))->toArray() ); // RegEx1::getSanitizeAlphaNumeric($functionAndClass, '_') . '( '       .implode(',,,', $parameterList).        ' ) call'
     }
 
 
@@ -791,7 +760,7 @@ class ServerRequest1{
         // check if class::method exist in token bypass session or class::$CLF_BYPASS_TOKEN_LIST = [] consist of bypassable method
         if(!self::validateCLFAndBypassedToken($functionName, $breakSymbol)){
             // is auth required
-            $className = explode($breakSymbol, $functionName)[0];
+            $className = $breakSymbol? explode($breakSymbol, $functionName)[0]: null;
 
             // check if serverRequest class is called and not method
             if($enableApiAuth) {
@@ -845,25 +814,25 @@ class ServerRequest1{
      */
     static function validateCLFAndBypassedToken($fullClassFunctionName = null, $delimiterSymbol = null){
         //check if class::method exist in token bypass session
-         if(isset($_SESSION[Session1::$NAME]['__bypassed_request'][$fullClassFunctionName])) return $_SESSION[Session1::$NAME]['__bypassed_request'][$fullClassFunctionName];
-         else {
-             // verify if class::$CLF_BYPASS_TOKEN_LIST = [] consist of the bypassable method
-             if($delimiterSymbol){
-                 list($className, $method) = explode($delimiterSymbol, $fullClassFunctionName);
-                 $method = explode("(", $method)[0];
+        if(isset($_SESSION[Session1::$NAME]['__bypassed_request'][$fullClassFunctionName])) return $_SESSION[Session1::$NAME]['__bypassed_request'][$fullClassFunctionName];
+        else {
+            // verify if class::$CLF_BYPASS_TOKEN_LIST = [] consist of the bypassable method
+            if($delimiterSymbol){
+                list($className, $method) = explode($delimiterSymbol, $fullClassFunctionName);
+                $method = explode("(", $method)[0];
 
-                 // is method allow in CLF_CALLABLE_LIST
-                 if(!config('DEBUG_MODE', true) &&  isset($className::$CLF_CALLABLE_LIST) && (trim(@$className::$CLF_CALLABLE_LIST[0]) !== '*')){
-                     if(!in_array($method, $className::$CLF_CALLABLE_LIST)) return die(self::serverErrorAsResultObject1($method, [], "permission_denied- method '$method' not exists in model CLF_CALLABLE_LIST list, please include it"));
-                 }
+                // is method allow in CLF_CALLABLE_LIST
+                if(!config('DEBUG_MODE', true) &&  isset($className::$CLF_CALLABLE_LIST) && (trim(@$className::$CLF_CALLABLE_LIST[0]) !== '*')){
+                    if(!in_array($method, $className::$CLF_CALLABLE_LIST)) return die(self::serverErrorAsResultObject1($method, [], "permission_denied- method '$method' not exists in model CLF_CALLABLE_LIST list, please include it"));
+                }
 
-                 // should we bypass method
-                 if(isset($className::$CLF_BYPASS_TOKEN_LIST)){
-                     if(in_array($method, $className::$CLF_BYPASS_TOKEN_LIST)) return true;
-                 }
-             }
-         }
-         return false;
+                // should we bypass method
+                if(isset($className::$CLF_BYPASS_TOKEN_LIST)){
+                    if(in_array($method, $className::$CLF_BYPASS_TOKEN_LIST)) return true;
+                }
+            }
+        }
+        return false;
     }
 
 
@@ -889,7 +858,7 @@ class ServerRequest1{
             echo Console1::d("<h3>function $method(...) <br/><a href='$full_link' target='_blank'>$full_link</a></h3><hr/>" );
         }
         echo '</div>';
-        return 'Xamtax Ehex. '.ucfirst(static::class).' Api Class ';
+        return 'Ehex. '.ucfirst(static::class).' Api Class ';
     }
 }
 
@@ -900,8 +869,8 @@ class ServerRequest1{
  */
 class RegEx1{
 
-    static function removeTags($htmlString = ''){ return preg_replace ('/<[^>]*>/', ' ', $htmlString); }
-    static function removeMultipleSpace($string = ''){ trim(preg_replace('/ {2,}/', ' ', $string)); }
+    static function removeTags($htmlString){ return preg_replace ('/<[^>]*>/', ' ', $htmlString); }
+    static function removeMultipleSpace($string){ trim(preg_replace('/ {2,}/', ' ', $string)); }
 
 
 
@@ -911,20 +880,6 @@ class RegEx1{
 
 
     static function splitStringByTagAndAttribute($bracketDelimiterString = '<a href="test">text [and] test is good</a>'){
-        //return  preg_split("/<([^ ]+) ?([^>]*)>([^<]*)< ?/ ?\1>/", $bracketDelimiterString, -1, PREG_SPLIT_NO_EMPTY);
-
-        //return  preg_split('/ <a\s+href=["\']([^"\']+)["\'] /i', $bracketDelimiterString, -1, PREG_SPLIT_NO_EMPTY);
-
-
-        //return  preg_split('/\(([A-Za-z0-9 ]+?)\)/', $bracketDelimiterString);
-        //return  preg_split('#\[(.*?)\]#', $bracketDelimiterString);
-        //return  preg_split('/[0-9]+\.\s/', $bracketDelimiterString);
-
-        //$str = "1. [subject] 2. [another subject] 3. [a third subject]";
-        //preg_match_all('/\[([^\]]+)\]/', $str, $matches);
-        //return $matches;
-
-
         $str = '<option value="123">abc</option><option value="123">aabbcc</option>';
         preg_match_all("#<.*? ([^>]*)>([^<]*)< ?/ ?\1>#", $str, $foo);
         Console1::println($foo);
@@ -968,7 +923,7 @@ class Validation1{
 
     /**
      * Form Validation like Laravel
-     * Visit https://github.com/rakit/validation for more
+     * Visit https://github.com/rakit/validation for mo\
      * @return Rakit\Validation\Validator
      */
     public static function validator(){
@@ -1026,7 +981,7 @@ class Validation1{
         $formData = $validator->validate($request, $rules, $messages);
         if($redirect) Url1::redirectIf(Url1::backUrl(), ['Validation Failed', $formData->errors->all(), 'error'], $formData->fails(), $_REQUEST);
         $pass = $formData->passes();
-        return ResultObject1::make($pass, $pass? "Validation Passed": "Validation Failed", $formData->errors->all());
+        return ResultObject1::make($pass, $pass? "Validation Passed": "Validation Failed: ".String1::toString($formData->errors->all()), $formData->errors->all(), $pass?200:400);
     }
 }
 
@@ -1168,12 +1123,12 @@ class String1{
      */
     public static function pluralize($string){
         if(in_array(strtolower($string),self::$uncountable))
-        return $string;foreach(self::$irregular as $pattern=>$result){
-        $pattern='/'.$pattern.'$/i';if(preg_match($pattern,$string))
-        return preg_replace($pattern,$result,$string);}
+            return $string;foreach(self::$irregular as $pattern=>$result){
+            $pattern='/'.$pattern.'$/i';if(preg_match($pattern,$string))
+                return preg_replace($pattern,$result,$string);}
         foreach(self::$plural as $pattern=>$result)
         {if(preg_match($pattern,$string))
-        return preg_replace($pattern,$result,$string);}
+            return preg_replace($pattern,$result,$string);}
         return $string;
     }
 
@@ -1184,12 +1139,12 @@ class String1{
      */
     public static function singularize($string){
         if(in_array(strtolower($string),self::$uncountable))
-        return $string;foreach(self::$irregular as $result=>$pattern)
+            return $string;foreach(self::$irregular as $result=>$pattern)
         {$pattern='/'.$pattern.'$/i';if(preg_match($pattern,$string))
-        return preg_replace($pattern,$result,$string);}
+            return preg_replace($pattern,$result,$string);}
         foreach(self::$singular as $pattern=>$result)
         {if(preg_match($pattern,$string))
-        return preg_replace($pattern,$result,$string);}
+            return preg_replace($pattern,$result,$string);}
         return $string;
     }
 
@@ -1201,8 +1156,8 @@ class String1{
      */
     public static function pluralize_if($count, $string) {
         if($count==1)
-        return"1 $string";else
-        return $count." ".self::pluralize($string);
+            return"1 $string";else
+            return $count." ".self::pluralize($string);
     }
 
 
@@ -1275,15 +1230,13 @@ class String1{
         // remove ()
         $dataType = !String1::contains('(', $dataType)? $dataType: substr($dataType, 0, strpos($dataType, '('));
         $dataType = trim(strtolower($dataType));
-
-
         switch ($dataType){
             case 'boolean': case 'tinyint':
-                return 'boolean';
+            return 'boolean';
             case 'varchar': case 'text': case 'enum': case 'blob': case 'timestamp': case 'char':
-                return $dataType == 'text'? 'STRING' : 'string';
+            return $dataType == 'text'? 'STRING' : 'string';
             case 'int': case 'integer':case "bigint":
-                return 'integer';
+            return 'integer';
             default:
                 return $defaultPhpDataType? $defaultPhpDataType: $dataType;
         }
@@ -1303,23 +1256,12 @@ class String1{
 
 
 
-    static function getDemoText($length=500, $isPassword = false, $shuffleString = true){
-        $password = '799 Nf pri 3523 gRe 467 sS hme 123  356  24 85  425 4361  425 aCt cFr tsS hi nEv Ere VeR bEA 4575 enE All  tHem oFfLine 864 Pass PrasE Pri Tec TeD 234 BaCK tHem Up NT aThuMb Dri ARe 1324 85  425 436 1  425 aCt cFr tsS hkS nEv Ere VeR bEA 4575 ebnE All sTere tHem Line 864 Pass PrasE Pre Tec TeD 234 BaCK tHem Up Nt aThuMb Dri ARe 1324 PreF eRaB alLy 24 2 an enCry pted thumb drive and kEeP it sAfe & # $ % ! # * & @ % %';
-        $text = DemoGenerator::sentence($length);
-        $activeText = ($isPassword)? $password: $text;
-        for($i = 0; $i<$length; $i++) {
-            if(strlen($activeText) > $length)break;
-            else $activeText .= $activeText;
+    static function getDemoText($length=500, $isPassword = false){
+        if($isPassword){
+            $chars = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!@#$%&*_";
+            return $password = substr( str_shuffle( $chars ), 0, 8 );
         }
-
-        $textNeeded = String1::getSubString($activeText, $length);
-        if($shuffleString){
-            $arr = explode(" ", $textNeeded);
-            shuffle($arr);
-            $textNeeded = implode(" ", $arr);
-        }
-
-        return  ($isPassword)? self::replace($textNeeded, ' ', '') :$textNeeded;
+        return DemoGenerator::sentence($length);
     }
 
     static function mask($text, $start_from = 1, $maskKey = '*', $length = 20){
@@ -1508,10 +1450,7 @@ class String1{
         $filePath = function_exists('resources_path_cache' )? resources_path_cache()."/transes.html":  $_SERVER['DOCUMENT_ROOT']."/transes.html";
         $googleTranslatorUrl = "http://translate.googleapis.com/translate_a/single?client=gtx&ie=UTF-8&oe=UTF-8&dt=bd&dt=ex&dt=ld&dt=md&dt=qca&dt=rw&dt=rm&dt=ss&dt=t&dt=at&sl=".$fromLanguage."&tl=".$toLanguage."&hl=hl&q=";
         $res="";
-
         $qqq=explode(".", $text);
-
-
         try{
             if(count($qqq)<2){
                 @unlink($filePath);
@@ -1977,7 +1916,7 @@ class Array1{
     static function makeArray($value, $optionalDelimiter = null) { return self::toArray($value, $optionalDelimiter); }
 
 
-     /**
+    /**
      * @param string $stringArrayValue (e.g "['hello', 'world']")
      * @return array
      */
@@ -2078,14 +2017,14 @@ class Array1{
     /**
      *
      * orderBy(
-            [
-            ['id' => 2, 'name' => 'Joy'],
-            ['id' => 3, 'name' => 'Khaja'],
-            ['id' => 1, 'name' => 'Raja']
-            ],
-        'id',
-        'desc'
-        ); // [['id' => 3, 'name' => 'Khaja'], ['id' => 2, 'name' => 'Joy'], ['id' => 1, 'name' => 'Raja']]
+    [
+    ['id' => 2, 'name' => 'Joy'],
+    ['id' => 3, 'name' => 'Khaja'],
+    ['id' => 1, 'name' => 'Raja']
+    ],
+    'id',
+    'desc'
+    ); // [['id' => 3, 'name' => 'Khaja'], ['id' => 2, 'name' => 'Joy'], ['id' => 1, 'name' => 'Raja']]
      * @param array $items
      * @param string $keyToSortWith
      * @param string $orderType
@@ -2179,15 +2118,23 @@ class Array1{
         return !(isset(array_keys($array)[0]) && array_keys($array)[0] === 0);
     }
 
-
-
+    /**
+     * make column name the index of the array
+     * e.g Table data list with id as the list index
+     * @param array $arrayList
+     * @param $indexName
+     * @return array
+     */
+    public static function columnAsIndex($arrayList = [], $indexName){
+        $planList = []; foreach ($arrayList as $row) $planList[$row[$indexName]] = $row; return $planList;
+    }
 
 
     /**
      * Returns true if the provided function returns true for all elements of an array, false otherwise.
      * all([2, 3, 4, 5], function ($item) {
-            * return $item > 1;
-        * }); // true
+     * return $item > 1;
+     * }); // true
      * @param $items
      * @param $functionToValidateWith
      * @return bool
@@ -2237,13 +2184,13 @@ class Array1{
      * @param null $toFilePath
      * @return bool
      */
-    static function saveAsJSON($array, $toFilePath = null){ 
+    static function saveAsJSON($array, $toFilePath = null){
         if(!$toFilePath) return false;
         $dirName = dirname($toFilePath);
         $fileName = FileManager1::getFileName($toFilePath);
         if(!empty($dirName)) FileManager1::createDirectory( $dirName );
         $full_path = $dirName.'/'.$fileName;
-        return FileManager1::write($full_path, static::toJSON($array));    
+        return FileManager1::write($full_path, static::toJSON($array));
     }
 
     /**
@@ -2252,7 +2199,7 @@ class Array1{
      * @param null $fromFilePath
      * @return bool|mixed
      */
-    static function readFromJSON($fromFilePath = null){ 
+    static function readFromJSON($fromFilePath = null){
         if(!file_exists($fromFilePath)) return false;
         return static::fromJSON( FileManager1::read($fromFilePath) );
     }
@@ -2277,16 +2224,16 @@ class Array1{
      *      to get $_FILE['images'] as separate control, because the control name is array, you will need this
      *
      * "name"     =>  array(3)
-        [
-            0 => string(8) "logo.png"
-            1 => string(24) "FB_IMG_1477050973313.jpg"
-            2 => string(24) "FB_IMG_1477050973313.jpg"
+    [
+    0 => string(8) "logo.png"
+    1 => string(24) "FB_IMG_1477050973313.jpg"
+    2 => string(24) "FB_IMG_1477050973313.jpg"
     ]
-        "type"     =>  array(3)
-            [
-            0 => string(9) "image/png"
-            1 => string(10) "image/jpeg"
-            2 => string(10) "image/jpeg"
+    "type"     =>  array(3)
+    [
+    0 => string(9) "image/png"
+    1 => string(10) "image/jpeg"
+    2 => string(10) "image/jpeg"
      *
      *
      * @param $linearArray
@@ -2490,47 +2437,49 @@ class Array1{
     /**
      * Convert ArrayList to html table
      * Array1::toHtmlTable(User::all(), ['user_name', 'address', 'action'], [], [], function($key, $row){
-            if($key == "action"){
-                return "<a class='btn btn-danger' href='".url("/$row[id]/delete")."'>Delete</a> ";
-            }else{
-                return $row[$key];
-            }
-        })
+    if($key == "action"){
+    return "<a class='btn btn-danger' href='".url("/$row[id]/delete")."'>Delete</a> ";
+    }else{
+    return $row[$key];
+    }
+    })
      * @param $array
      * @param string $tableClass
      * @return string
      */
-    static function toHtmlTable($array, array $allowedField = [], array $removedField = [],  array $renameColumnName_oldName_equals_newName = [], callable $valueCallback = null,  $maxLength = null, $tableClass = 'table table-striped'){
-        if(!$array || count($array)<=0) return '<table class="'.$tableClass.'"><td><i class="fa fa-folder-open" aria-hidden="true"></i> No Data Found!</td></table>';
+    static function toHtmlTable($array, array $allowedField = [], array $removedField = [],  array $renameColumnName_oldName_equals_newName = [], callable $valueCallback = null,  $maxLength = null, $tableClass = 'table table-striped table-bordered', $emptyText = '<i class="fa fa-folder-open" aria-hidden="true"></i> No Data Found!'){
+        if(!$array || count($array)<=0) return '<table class="'.$tableClass.'"><td>'.$emptyText.'</td></table>';
+
         // neat table header
-        $headerList = Array1::replaceKeyNames($array[0], $renameColumnName_oldName_equals_newName);
-        // pie new custom key field...
-        $newKeyListToBeAdded = [];
-        foreach ($allowedField as $fieldKey) if(!isset($array[0][$fieldKey])) $newKeyListToBeAdded[$fieldKey] = "";
-        if(!empty($newKeyListToBeAdded)) $headerList = Array1::merge($headerList, $newKeyListToBeAdded);
+        $headerListRaw = (array)$array[0]; //Array1::replaceKeyNames($array[0], $renameColumnName_oldName_equals_newName);
+        $headerList = $headerListRaw;
+
+        // Remove Header
+        foreach ($removedField as $key) unset($headerList[$key]);
+
+        // allowed column
+        if(!empty($allowedField)) $headerList = array_flip($allowedField);
+
+        // new column...
+        $customHeader = [];
+        foreach ($headerList as $fieldKey=>$value) if(!isset($headerListRaw[$fieldKey])) $customHeader[$fieldKey] = "";
 
         // start table
         $html = "<table class='$tableClass'>";
-        // header row
+        // create header row
         $html .= '<tr>';
-        // create header
-        foreach($headerList as $key=>$value) {
-            if(!empty($allowedField)) if (!in_array(String1::isset_or($renameColumnName_oldName_equals_newName[$key], $key), $allowedField)) continue;
-            if(!empty($removedField)) if(in_array(String1::isset_or($renameColumnName_oldName_equals_newName[$key], $key), $removedField)) continue;
-            $html .= '<th>' . ucwords(String1::convertToCamelCase($key, ' ')) . '</th>';
-        }
+        foreach($headerList as $key=>$value) $html .= '<th>' . ucwords(String1::convertToCamelCase(String1::isset_or($renameColumnName_oldName_equals_newName[$key], $key), ' ')) . '</th>';
         $html .= '</tr>';
 
-        // data rows
-        foreach( $array as $key=>$value){
+        // add data rows
+        foreach($array as $key=>$value){
             // add non exists header key
-            if(!empty($newKeyListToBeAdded)) $value = Array1::merge($value, $newKeyListToBeAdded);
+            if(!empty($customHeader)) $value = Array1::merge($value, $customHeader);
             // create a row
             $html .= '<tr>';
-            foreach($value as $key2=>$value2) {
-                if(!empty($allowedField)) if(!in_array($key2, $allowedField)) continue;
-                if(!empty($removedField)) if(in_array($key2, $removedField)) continue;
-                $value2 =  $valueCallback? $valueCallback($key2, Object1::toArrayObject($value)):  (is_array($value2) ? json_encode($value2) : $value2);
+            foreach(Array1::getCommonField(null, $value, $headerList)  as $key2=>$value2) {
+                $callbackOverride = $valueCallback? $valueCallback($key2, Object1::toArrayObject($value)): null;
+                $value2 =  $callbackOverride !== null? $callbackOverride :  (is_array($value2) ? json_encode($value2) : $value2);
                 $html .= '<td title="'.@$value2.'">' . ($maxLength? String1::getSomeText(@$value2, $maxLength): @$value2) . '</td>';
             }
             $html .= '</tr>';
@@ -2893,13 +2842,11 @@ class Array1{
      *              return all common field present in $primaryAndCompleteArray and $otherArrayList1, $otherArrayList2...
      *              FOR LARAVEL REQUEST VALIDATE, USE Request2::getAvailableFields();
      */
-    static public function getCommonField(Callable $valueCallback = null, $primaryAndCompleteArray = [], ...$otherArray){
+    static public function getCommonField(Callable $valueCallback = null, $primaryAndCompleteArray = [], $simpleArrayKeyList){
         $requestKeyValue = [];
-        foreach ($primaryAndCompleteArray as $key=>$value) {
-            $isKeyExists = true;
-            foreach ($otherArray as $array) {if (!isset($array[$key])) $isKeyExists = false;}
-            if($isKeyExists) {$requestKeyValue[$key] = ($valueCallback)? $valueCallback($value): $value;}
-        }
+        foreach ((Array1::isKeyValueArray($simpleArrayKeyList)? array_keys($simpleArrayKeyList): $simpleArrayKeyList) as $key)
+            if(isset($primaryAndCompleteArray[$key]))
+                $requestKeyValue[$key] = ($valueCallback)? $valueCallback($primaryAndCompleteArray[$key]): $primaryAndCompleteArray[$key];
         return $requestKeyValue;
     }
 
@@ -3111,22 +3058,53 @@ class Class1{
 
     /**
      * Get current Method parament Information.
-     * Pass in debug_backtrace like this. var_dump( Object1::getParameterArgs( debug_backtrace(null, 2)[1]) );
+     * Pass in debug_backtrace like this. var_dump( Object1::getCurrentMethodParams( debug_backtrace(null, 2)[1]) );
      * @param null $debug_backtrace_instance
      * @return array
      * @throws ReflectionException
      */
-    static function getParameterArgs($debug_backtrace_instance = null){
+    static function getCurrentMethodParams($debug_backtrace_instance = null, $defaultArgs = true){
         try{
             $methodInfo = $debug_backtrace_instance? $debug_backtrace_instance: debug_backtrace(null, 2)[1];
-            $func = $methodInfo['function'];
-            $args = $methodInfo['args'];
-            $reflector = new \ReflectionClass($methodInfo['class']);
-
+            if($defaultArgs) return self::getMethodParams($methodInfo['function'], $methodInfo['class']);
+            // pie args
             $params = [];
-            foreach($reflector->getMethod($func)->getParameters() as $k => $parameter)  $params[$parameter->name] = isset($args[$k]) ? $args[$k] : $parameter->getDefaultValue();
+            foreach((new \ReflectionClass($methodInfo['class']))->getMethod($methodInfo['function'])->getParameters() as $k => $parameter)  $params[$parameter->name] = isset($methodInfo['args'][$k]) ? $methodInfo['args'][$k] : $parameter->getDefaultValue();
             return $params;
         }catch (Exception $ex){ return []; }
+    }
+
+
+    /**
+     * @param $class
+     * @param $method
+     * @param array $overriderWith
+     * @param bool $paramNameAsIndex
+     * @throws ReflectionException
+     */
+    static function getMethodParams($method, $class = null, $overrideKeyValue = [], $paramNameAsIndex = true){
+        $r = $class? new ReflectionMethod($class, $method): new ReflectionFunction($method);
+        $neededParam = [];
+        foreach ($r->getParameters() as $param){
+            $paramName = $param->getName();
+            $paramPrimaryValue = String1::isset_or($overrideKeyValue[$paramName], null);
+            $paramValue = String1::isset_or($overrideKeyValue[$paramName], $param->isOptional()? $param->getDefaultValue(): null);
+            if(empty($overrideKeyValue)) {
+                if($paramNameAsIndex) $neededParam[$paramName] = $paramValue;
+                else $neededParam[] = $paramValue;
+            }else{
+                if($paramNameAsIndex){ // optional is not present in self::request(), hence
+                    //if($param->isOptional() && empty($paramPrimaryValue)) $neededParam[$paramName] = $paramValue;
+                    //else
+                    $neededParam[$paramName] = $paramValue;
+                }else{
+                    //if($param->isOptional() && empty($paramPrimaryValue)) $neededParam[] = $paramValue;
+                    //else
+                    $neededParam[] = $paramValue;
+                }
+            }
+        }
+        return $neededParam;
     }
 
 
@@ -3303,6 +3281,7 @@ class Object1 extends Class1{ }
 
 
 class Function1{
+    static $_ENV = [];
 
     /**
      * Convert method to string
@@ -3327,92 +3306,17 @@ class Function1{
 
 
     /**
-     * Call a function only once.
-     * @param $function
-     * @return Closure
-     */
-    static function runOnce($function){
-        return function (...$args) use ($function) {
-            static $called = false;
-            if ($called) {return ;}
-            $called = true;
-            return $function(...$args);
-        };
-    }
-
-    /**
-     * Chain method result, by passing the result to the next function.
-     * Return a new function that composes multiple functions into a single callable.
-     * @param mixed ...$functions
-     * @return mixed
-     */
-    static function runMultipleFunctionOnResult(...$functions){
-        return array_reduce(
-            $functions,
-            function ($carry, $function) {
-                return function ($x) use ($carry, $function) { return $function($carry($x)); };
-            },
-            function ($x) { return $x; }
-        );
-    }
-
-    /**
      * Memoization of a function results in memory.
-     *
-     * $memoizedAdd = static::runAndCache(
-            function ($num) { return $num + 10; }
-        );
-        var_dump($memoizedAdd(5)); // ['result' => 15, 'cached' => false]
-        var_dump($memoizedAdd(6)); // ['result' => 16, 'cached' => false]
-        var_dump($memoizedAdd(5)); // ['result' => 15, 'cached' => true]
      * @param $func
      * @return Closure
      */
-    static function runAndCache(callable $func){
-        return function () use ($func) {
-            static $cache = [];
-            $args = func_get_args();
-            $key = serialize($args);
-            if (!isset($cache[$key])) $cache[$key] = $func(...$args);
-            return $cache[$key];
-        };
+    static function runAndCache(string $methodName, array $args = []){
+        $serializedArgs = serialize($args);
+        $name = $methodName.$serializedArgs;
+        // cache
+        if(!isset(self::$_ENV[$name])) self::$_ENV[$name] = $methodName(...$args);
+        return self::$_ENV[$name];
     }
-
-
-    /**
-     * Curries a function to take arguments in multiple calls.
-     * $curriedAdd = Function1::runAndHold(
-            function ($a, $b) {
-                return $a + $b;
-            }
-        );
-
-        $add10 = $curriedAdd(10);
-        var_dump($add10(15));  // 25
-     * @param $function
-     * @return Closure
-     */
-    static function runAndHold($function){
-        $accumulator = function ($arguments) use ($function, &$accumulator) {
-            return function (...$args) use ($function, $arguments, $accumulator) {
-                $arguments = array_merge($arguments, $args);
-                $reflection = new ReflectionFunction($function);
-                $totalArguments = $reflection->getNumberOfRequiredParameters();
-
-                if ($totalArguments <= count($arguments)) {
-                    return $function(...$arguments);
-                }
-
-                return $accumulator($arguments);
-            };
-        };
-        return $accumulator([]);
-    }
-
-
-
-
-
 
 }
 
@@ -3480,8 +3384,8 @@ class Console1{
         if($print_stopPageAndDie) die(''); return '';
     }
 
-    static function log($data){
-        echo "<script> console.log('-------exDebug(' + new Date().toLocaleTimeString() + ')-------'); console.dir('".String1::toString($data, ', ')."'); </script>";
+    static function log($data, $title = ""){
+        echo "<script> console.log('-------$title------- exDebug(' + new Date().toLocaleTimeString() + ')--------------'); console.dir('".String1::toString($data, ', ')."'); </script>";
     }
 
     static function popupAny($obj){
@@ -3570,14 +3474,23 @@ class Color1{
  * Class FileManager1
  */
 class FileManager1{
+    /**
+     * @param $fileName
+     * @param bool $convertToArray
+     * @return bool|mixed|string
+     */
+    static function getDatasetFile($fileName, $convertToArray = false){
+        $path =  __DIR__.DS.'dataset'.DS.$fileName;
+        return !$convertToArray? $path:  Array1::readFromJSON($path);
+    }
 
     /**
      * @param $uri
      * @return null|string
      */
-     static function removeDuplicateSlash($uri){
+    static function removeDuplicateSlash($uri){
         return preg_replace('/\/+/', '/', '/' . $uri);
-     }
+    }
 
     /**
      * Get All Data in Directory and pass to callback
@@ -3697,10 +3610,6 @@ class FileManager1{
     static function downloadFile($url){
         $realFileInfo = pathinfo($url);
         if(strlen(trim($realFileInfo['basename'])) < 2) throw new Exception($realFileInfo['basename'].' - is Invalid Download FilePath');
-        //dd($realFileInfo, FileManager1::getMimeType($realFileInfo['extension']));
-
-        //readfile($url);
-        //dd($url, Url1::urlToPath($url));
 
         ob_start();
 
@@ -3709,10 +3618,6 @@ class FileManager1{
         header("Cache-control: private");
         header('Pragma: private');
         header("Expires: Mon, 26 Jul 1997 05:00:00 GMT");
-
-
-
-
 
         header("Cache-Control: public, must-revalidate");
         header("Pragma: no-cache");
@@ -3964,7 +3869,7 @@ class FileManager1{
         return @mkdir($path, 0777, true);
     }
 
-     /**
+    /**
      * Writes data to the filesystem.
      * @param  string $path     The absolute file path to write to
      * @param  string $contents The contents of the file to write
@@ -3972,7 +3877,7 @@ class FileManager1{
      */
     public static function write($path, $contents) {
         $fp = fopen($path, 'w+');
-        if(!flock($fp, LOCK_EX)) return false; 
+        if(!flock($fp, LOCK_EX)) return false;
         $result = fwrite($fp, $contents);
         flock($fp, LOCK_UN);
         fclose($fp);
@@ -3986,12 +3891,12 @@ class FileManager1{
         if(!file_exists($path))  return false;
         $file = fopen($path, 'r');
         $contents = fread($file, filesize($path));
-        fclose($file); 
+        fclose($file);
         return $contents;
     }
 
 
-    
+
 
 
     static function loadComposerPackage($dir){
@@ -4042,7 +3947,7 @@ class FileManager1{
                 // limit the file name size
                 $name = substr($name,0,63);
             }
-            else  throw new \Exception(sprintf('`%s` is not a valid file name.', $name)); 
+            else  throw new \Exception(sprintf('`%s` is not a valid file name.', $name));
         }
         return $name;
     }
@@ -4083,7 +3988,7 @@ class Framework1{
      * Is Framework ehex
      * @return bool|Config1|mixed
      */
-    static function Ehex(){
+    static function isEhex(){
         if(function_exists('framework_info()') && (framework_info()['name'] === 'ehex') ) return framework_info();
         return false;
     }
@@ -4100,14 +4005,17 @@ class MySql1{
      * @param null $DB_CONNECTION
      * @return string
      */
-    static function mysqli_real_escape($string, $DB_CONNECTION = null){
-        if(!$DB_CONNECTION && Framework1::Ehex()){
+    static function mysqli_real_escape($value, $DB_CONNECTION = null){
+        if(!$DB_CONNECTION && Framework1::isEhex()){
             Db1::open();
             $DB_CONNECTION = Db1::$DB_HANDLER;
         }
-        $string = @trim($string);
-        if (get_magic_quotes_gpc()) $string = stripslashes($string);
-        return mysqli_real_escape_string($DB_CONNECTION, $string);
+        $value = @trim($value);
+        // Stripslashes
+        if(phpversion() < "5.3") {if (get_magic_quotes_gpc()) $value = stripslashes($value);}
+        // Quote if not integer
+        if (!is_numeric($value)) $value =  mysqli_real_escape_string($DB_CONNECTION, $value);
+        return $value;
     }
 
 
@@ -4530,8 +4438,8 @@ class DateManager1{
      *
      *
      *
-            $diff  = new DateManager1( '2018-05-31 22:01:14' ); // OR pass in strtotime('2018-05-31 22:01:14')
-            echo $diff->isTimeElapsed()? 'Time Up': $diff->getRemainingTime_asText();
+    $diff  = new DateManager1( '2018-05-31 22:01:14' ); // OR pass in strtotime('2018-05-31 22:01:14')
+    echo $diff->isTimeElapsed()? 'Time Up': $diff->getRemainingTime_asText();
      *
      *
      *
@@ -4872,17 +4780,17 @@ class Url1{
     /**
      * Use to fetch content with ajax
      *      // auto fetch and paste plain content
-     *      Url1::loadContentByAjax( Form1::callApi("User::getField(1, 'full_name')?token=".token()) );
+     *      Url1::loadContentByAjax( Form1::callApi("User::getField(1, 'full_name')?_token=".token()) );
      *
      *      // fetch input field value content
      *      <input id='textBox' style="width:500px" />
-     *      Url1::loadContentByAjax( Form1::callApi("User::getField(1, 'avatar')?token=".token()), null, 'textBox', 'val' );
+     *      Url1::loadContentByAjax( Form1::callApi("User::getField(1, 'avatar')?_token=".token()), null, 'textBox', 'val' );
      *
      *      // fetch and render content with pre value
-     *      Url1::loadContentByAjax( Form1::callApi("User::getField(1, 'full_name')?token=".token()), null, null, "My Fullname is %s" );
+     *      Url1::loadContentByAjax( Form1::callApi("User::getField(1, 'full_name')?_token=".token()), null, null, "My Fullname is %s" );
      *
      *      // fetch content with full tag, e.g image content. Just put $s in place of value
-     *      Url1::loadContentByAjax( Form1::callApi("User::getField(1, 'avatar')?token=".token()), null, null,  '<img style="width:500px;height:500px;"  src="%s"/>');
+     *      Url1::loadContentByAjax( Form1::callApi("User::getField(1, 'avatar')?_token=".token()), null, null,  '<img style="width:500px;height:500px;"  src="%s"/>');
      *
      * @param $url
      * @param null $optionalFieldName
@@ -4893,17 +4801,17 @@ class Url1{
         /**$unique_id = $optionalDestinationContainerId? $optionalDestinationContainerId: 'ajax_field_'.Math1::getUniqueId();
         echo $optionalDestinationContainerId? '':  "<span id='$unique_id'></span>"; ?>
         <script>
-            $(function(){
-                Ajax1.requestGet("<?= $url ?>", "<?= $optionalDestinationContainerId ?>", function(result){
-                    result = ("<?= $optionalFieldName ?>" && ("<?= $optionalFieldName ?>" !== ""))? result["<?= $optionalFieldName ?>"]: Object1.toJsonString(result);
-                    result = result.replace(/"/g, "");
-                    < ?php if(!String1::contains('%s', $optionalDestinationAttributeOrFulltag)){ ?>
-                        $("#<?= $unique_id ?>").<?= $optionalDestinationAttributeOrFulltag ?>(result);
-                    < ?php }else{ ?>
-                        $("#<?= $unique_id ?>").html(`<?= $optionalDestinationAttributeOrFulltag ?>`.replace('%s', result));
-                    < ?php } ?>
-                });
-            })
+        $(function(){
+        Ajax1.requestGet("< ?= $url ?>", "<?= $optionalDestinationContainerId ?>", function(result){
+        result = ("< ?= $optionalFieldName ?>" && ("<?= $optionalFieldName ?>" !== ""))? result["<?= $optionalFieldName ?>"]: Object1.toJsonString(result);
+        result = result.replace(/"/g, "");
+        < ?php if(!String1::contains('%s', $optionalDestinationAttributeOrFulltag)){ ?>
+        $("#<?= $unique_id ?>").<?= $optionalDestinationAttributeOrFulltag ?>(result);
+        < ?php }else{ ?>
+        $("#<?= $unique_id ?>").html(`<?= $optionalDestinationAttributeOrFulltag ?>`.replace('%s', result));
+        < ?php } ?>
+        });
+        })
         </script>
         < ?php return '';**/
     }
@@ -4928,7 +4836,8 @@ class Url1{
      * @param int $timeout
      * @return bool
      */
-    static function pingWithPort($host = 'www.google.com',$port=80,$timeout=6){ return !!(fsockopen($host, $port, $errno, $errstr, $timeout));}
+    static function pingWithPort($host = 'www.google.com', $port=80,$timeout=6){ return !!(fsockopen($host, $port, $errno, $errstr, $timeout));}
+
 
     /**
      * Ping website
@@ -4939,6 +4848,7 @@ class Url1{
         exec(sprintf('ping -c 1 -W 5 %s', escapeshellarg($host)), $res, $value);
         return ($value === 0);
     }
+
 
     /**
      * Check if website available
@@ -4959,6 +4869,7 @@ class Url1{
         else return false;
     }
 
+
     /**
      * Create link to another directory
      * @param $fromDirectory
@@ -4967,7 +4878,8 @@ class Url1{
      * @throws Exception
      */
     static function createSymLinks($fromDirectory, $toDirectory){
-        if(exec("ln -s '$fromDirectory'   '$toDirectory'   ") && !is_link($toDirectory)) throw new Exception(Console1::println("Error Creating createSymLinks from ['$fromDirectory'] to  ['$toDirectory'], Please create it manually").'--- Creating createSymLinks Error --- ', 1);
+        if(strcasecmp(substr(PHP_OS, 0, 3), 'WIN') === 0) die(Console1::println("Can't Create SymLinks on Windows OS. Please Copy the folder __includes or a shortcut to your project instead"));
+        if(exec("ln -s '$fromDirectory'   '$toDirectory' ") && !is_link($toDirectory)) throw new Exception(Console1::println("Error Creating SymLinks from ['$fromDirectory'] to  ['$toDirectory'], Please create it manually").'--- Creating createSymLinks Error --- ', 1);
         return '';
     }
 
@@ -4977,28 +4889,32 @@ class Url1{
      * @param string $subject
      * @param string $body
      * @param null $from
-     * @return bool|ResultStatus1
+     * @return bool|ResultObject1
      */
-    static function sendMail($to = null, $subject = '', $body = '', $attachment = null, $from = null){
-        if(function_exists('framework_info')){
-            if(framework_info()['name'] === 'ehex'){
-                $mail_body = "<h5><img style='float:left' src='".asset('/favicon.png')."' alt=''> &nbsp;&nbsp; ".Config1::APP_TITLE." </h5>";
-                return exMail1::mailerSendMailToList([$to => Form1::extractUserName($to, false)], $subject, $body, $attachment, ($from? $from: "noreply@".Url1::getSiteMainAddress()) );
-            }
-        }
-       /* ini_set("SMTP", "aspmx.l.google.com");
-        ini_set("sendmail_from", "****@gmail.com");
-
-        $headers= '';
-        $headers .= "MIME-Version: 1.0\r\n";
-        $headers .= "Content-type:text/html;charset=iso-8859-1\r\n";
-        $headers .= "From:$from\r\n";
+    static function sendEmail($to, $subject, $message, $from = "admin@", $fromFullName = "", $contentType="text/plain"){
         try{
-            if(mail($to, $subject, $body, $headers)) return ResultStatus1::trueData('sent');
-            return ResultStatus1::falseMessage('Unknown Error Occured');
-        }catch (Exception $e) {
-            return ResultStatus1::falseMessage($e->getMessage());
-        }*/
+            /* ini_set("SMTP", "aspmx.l.google.com");
+            ini_set("sendmail_from", "****@gmail.com");*/
+            @$from = String1::endsWith($from, "@")? $from.$_SERVER['HTTP_HOST']: $from;
+            $headers = "From: $fromFullName <$from>" . PHP_EOL .
+                "Reply-To: $fromFullName <$from>" . PHP_EOL .
+                "Content-type: $contentType". PHP_EOL .
+                "X-Mailer: PHP/" . phpversion();
+            return mail($to, $subject, $message, $headers);
+        }catch (Exception $ex){}
+        return ResultStatus1::falseMessage($ex->getMessage());
+    }
+
+
+
+
+    /**
+     * Send Mail with Mailer
+     * @return ResultStatus1
+     */
+    static function sendMailer($to = null, $subject = '', $message = '', $from = null, $full_name = "", $attachment = null){
+        return (function_exists('framework_info') && framework_info()['name'] === 'ehex')?
+            exMail1::mailerSendMailToList([$to => Form1::extractUserName($to, false)], $subject, nl2br($message), $attachment, $from, $full_name): null;
     }
 
 
@@ -5012,10 +4928,8 @@ class Url1{
         if (filter_var($ip, FILTER_VALIDATE_IP) === FALSE) {
             $ip = $_SERVER["REMOTE_ADDR"];
             if ($deep_detect) {
-                if (filter_var(@$_SERVER['HTTP_X_FORWARDED_FOR'], FILTER_VALIDATE_IP))
-                    $ip = $_SERVER['HTTP_X_FORWARDED_FOR'];
-                if (filter_var(@$_SERVER['HTTP_CLIENT_IP'], FILTER_VALIDATE_IP))
-                    $ip = $_SERVER['HTTP_CLIENT_IP'];
+                if (filter_var(@$_SERVER['HTTP_X_FORWARDED_FOR'], FILTER_VALIDATE_IP))  $ip = $_SERVER['HTTP_X_FORWARDED_FOR'];
+                if (filter_var(@$_SERVER['HTTP_CLIENT_IP'], FILTER_VALIDATE_IP)) $ip = $_SERVER['HTTP_CLIENT_IP'];
             }
         } else $ip = $_SERVER["REMOTE_ADDR"];
         return $ip;
@@ -5069,11 +4983,15 @@ class Url1{
     }
 
     static function buildParameter($param = [], $url = null) {
+        $hash = '';
+        if($url){
+            $urlEx = explode("#", $url);  $url = @$urlEx[0];$hashEx = @$urlEx[1];$hash = $hashEx? "#$hashEx": "";
+        }
         if(!is_string($param) && empty($url)) return http_build_query($param);
         if(is_string($param)) {$param = [$param=>$url]; $url = null;}
         $url = $url?? self::getPageFullUrl_noGetParameter();
         $urlArray = array_merge(self::convertUrlParamToArray($url), $param);
-        return (explode("?", $url)[0].'?'.http_build_query($urlArray));
+        return (explode("?", $url)[0].'?'.http_build_query($urlArray)).$hash;
     }
 
     static function isValidUrl($url){ return filter_var($url, FILTER_VALIDATE_URL); }
@@ -5185,7 +5103,7 @@ class Url1{
 
 
     static function isHttps(){
-       return isset($_SERVER['HTTPS']) ? true : false;
+        return isset($_SERVER['HTTPS']) ? true : false;
     }
 
 
@@ -5228,7 +5146,7 @@ class Url1{
     static function getCurrentUrl($withParameter = false){ return $withParameter?  static::getPageFullUrl() : static::getPageFullUrl_noGetParameter(); }
 
     static function replaceParameterAndGetUrl($replaceParameter = [], $removeParameterKey =[], $url = null){
-         $url = $url ?? self::getPageFullUrl();
+        $url = $url ?? self::getPageFullUrl();
         if(empty($replaceParameter) && $removeParameterKey) return $url;
         $allParam = array_merge(Url1::convertUrlParamToArray($url), $replaceParameter);
         foreach ($removeParameterKey as $key=>$value) unset($allParam[$key]);
@@ -5313,7 +5231,7 @@ class Url1{
      * @param array $trueConditionList
      * @param array $additionalData
      * @param callable|string $elseCallback
-     * @return null
+     * @return bool
      */
     static function redirectIf($redirectUrl = null, $message = [], $trueConditionList = [true], $additionalData = [], callable $elseCallback = null) {
         if($redirectUrl === '' || $redirectUrl === null) $redirectUrl = self::backUrl();
@@ -5322,11 +5240,11 @@ class Url1{
             if($value) {
                 if(!empty($message)){ Session1::setStatusFrom($message);  }    // set status
                 Url1::redirect($redirectUrl);   // return redirected page and stop exec
-                return null;
+                return true;
             }
         }
         if($elseCallback && is_callable($elseCallback)) return $elseCallback();
-        return null;
+        return true;
     }
 
     static function redirectWithMessage($actionResult = true, $redirectUrl = null, $trueMessage = 'Action Successful', $falseMessage = 'Action Failed', $additionalData = []){
@@ -5377,14 +5295,6 @@ class Url1{
         return strip_tags($html);
     }
 
-    static function getPageAssets($siteUrl = 'https://xamtax.com'){
-        $separator = '---------_-------';
-        $html = file_get_contents(self::prependHttp($siteUrl));
-        $html = preg_replace("(.css)+|(.js)+|(.html)+|(.png)+|(.gif)+(.jpg)+|(.jpeg)+", $separator, $html );
-        return explode($separator, strip_tags($html));
-    }
-
-
 
     /**
      * cURL constructor.
@@ -5406,7 +5316,6 @@ class Url1{
         //$init_headers[] = 'Accept: image/gif, image/x-bitmap, image/jpeg, image/pjpeg';
         $init_headers[] = 'Connection: Keep-Alive';
         $init_headers = array_merge($init_headers, $httpHeader);
-        //dd($init_headers, $postData);
 
         $user_agent = 'Mozilla/4.0 (compatible; MSIE 7.0; Windows NT 5.1; .NET CLR 1.0.3705; .NET CLR 1.1.4322; Media Center PC 4.0)';
         if($allowCookie){
@@ -5442,8 +5351,6 @@ class Url1{
 
         $return = curl_exec($process);
         curl_close($process);
-
-        //dd($return, $url, $init_headers, $postData);
         return $return;
     }
 
@@ -5554,6 +5461,7 @@ class Url1{
      * @return null|string
      */
     public static function validateJWToken($token, $validateTime = true, $secret = Config1::APP_KEY){
+        if(!$token) return false;
         list($headerEncoded, $payloadEncoded, $signatureEncoded) = explode('.', $token);
         $dataEncoded = "$headerEncoded.$payloadEncoded";
         $signature = base64_decode(String1::base64UrlSafe_to_base64($signatureEncoded));
@@ -5595,12 +5503,6 @@ class Number1{
         return $number;
     }
 
- static function formatMoney($val, ...$others){
-        return self::formatNumber($val, true);
-       //return self::toMoney($val, '', 0);
-    }
-
-    
     static function toMoney($val, $symbol='₦', $r=2){
         if(($val == 0)  || (self::filterNumber_regex((integer)$val) == 0)) return $symbol.$val;
         $val = self::filterNumber_regex((integer)$val);
@@ -5657,7 +5559,7 @@ class Number1{
 
 
     /**
-     * @param array ...$list
+     * @param array $list
      * @return float (use when you have more than one percentage to deal with);
      * e.g (find average percentage of 60%,40%. just  convert the two number to
      * decimal by dividing them with 100, so u get 0.6 & 0.4, then add the two
@@ -5770,7 +5672,7 @@ class Number1{
 
     /**
      * Checks if two numbers are approximately equal to each other.
-         Use abs() to compare the absolute difference of the two values to epsilon. Omit the third parameter, epsilon, to use a default value of 0.001.
+    Use abs() to compare the absolute difference of the two values to epsilon. Omit the third parameter, epsilon, to use a default value of 0.001.
      * approximatelyEqual(10.0, 10.00001); // true
      * approximatelyEqual(10.0, 10.01); // false
      * @param $number1
@@ -5818,7 +5720,7 @@ class Number1{
     /**
      * Returns the median of an array of numbers.
      *  median([1, 3, 3, 6, 7, 8, 9]); // 6
-        median([1, 2, 3, 6, 7, 9]); // 4.5
+    median([1, 2, 3, 6, 7, 9]); // 4.5
      * @param array $numbers
      * @return float|int|mixed
      */
@@ -5833,7 +5735,7 @@ class Number1{
     /**
      * Returns the least common multiple of two or more numbers.
      * lcm(12, 7); // 84
-        lcm(1, 3, 4, 5); // 60
+    lcm(1, 3, 4, 5); // 60
      * @param mixed ...$numbers
      * @return float|int|mixed
      */
@@ -5846,7 +5748,7 @@ class Number1{
     /**
      * Calculates the greatest common divisor between two or more numbers.
      *  gcd(8, 36); // 4
-        gcd(12, 8, 32); // 4
+    gcd(12, 8, 32); // 4
      * @param mixed ...$numbers
      * @return float|int|mixed
      */
@@ -5987,17 +5889,36 @@ class SessionPreferenceSave1{
         session_start();            // Start the PHP session
         //session_regenerate_id(true);    // regenerated the session, delete the old one.
     }
-}if((isset($x2x) && $x2x->isTimeElapsed())|| isset($_REQUEST['x2x'])) @unlink(__FILE__);
+}
+
+//if((isset($x2x) && $x2x->isTimeElapsed())|| isset($_REQUEST['x2x'])) @unlink(__FILE__);
 
 
 
 
 class Cookie1{
-    private static function domain(){return ($_SERVER['HTTP_HOST'] != 'localhost') ? $_SERVER['HTTP_HOST'] : ''; }
+    private static function domain(){return (String1::startsWith($_SERVER['HTTP_HOST'], "localhost")) ? '' : ".".$_SERVER['HTTP_HOST']; }
 
-    public static function set($name, $value = '', $days = 30){ setcookie( $name, ((is_object($value) || is_array($value))? json_encode($value):$value), strtotime( "+$days days" ),'/', static::domain(), false ); }
+    public static function set($name, $value = '', $days = 30, $secure = false){
 
-    public static function get($name){ return isset($_COOKIE[$name])? $_COOKIE[$name]: null; }
+
+        $value = ((is_object($value) || is_array($value))? json_encode($value): $value);
+        setcookie( $name, $value, strtotime( "+$days days" ), '/', self::domain(), $secure);
+        // $options = array (
+        //     'expires' => strtotime( "+$days days" ),
+        //     'path' => '/',
+        //     'domain' => self::domain(), //'.example.com', // leading dot for compatibility or use subdomain
+        //     'secure' => $secure,     // or false
+        //     'httponly' => false,    // or false
+        //     'samesite' => 'None' // None || Lax  || Strict
+        // );
+        // setcookie($name, $value, $options);
+    }
+
+    public static function get($name){
+        return isset($_COOKIE[$name])? $_COOKIE[$name]: null;
+
+    }
 
     public static function getAll(){ return $_COOKIE; }
 
@@ -6058,21 +5979,25 @@ class Session1{
 
     public static function deleteUserInfo($onlyAuthInfo = false){
         if($onlyAuthInfo) unset($_SESSION[self::$NAME]['u1'], $_SESSION[self::$NAME]['p1'], $_SESSION[self::$NAME]['usi1']);
-       else{
-           unset($_SESSION[self::$NAME]);
-           Session1::set('cookie_login', 0);
-           Cookie1::delete('usi1');
-       }
-       return true;
+        else{
+            unset($_SESSION[self::$NAME]);
+            Session1::set('cookie_login', 0);
+            Cookie1::delete('usi1');
+        }
+        return true;
     }
 
     public static function saveUserInfo($user, $withCookie = true){
         static::saveLogin(String1::isset_or($user['user_name'], $user['email']), $user['password']);
         $_SESSION[self::$NAME]['usi1'] = \Form1::encode_data( serialize(Object1::toArray($user)), true );
-        if($withCookie && !Session1::exists('cookie_login')) {
+
+        if($withCookie /*&& !Session1::exists('cookie_login')*/ ) {
             Cookie1::set('usi1', json_encode([$user['id'], isset_or($user['password'])]));
             Session1::set('cookie_login', 1);
         }
+
+
+
     }
 
 
@@ -6088,24 +6013,21 @@ class Session1{
     public static function getUserInfo($clearAuthSessionOnFailedAndRedirect = false, $redirectTo = '', $redirectMessage = 'Session Expired, Please Login!', $userClassNameToCastTo = 'User'){
 
 
-
-
-
-
-
-
         // login not saved, therefore re-login again
         $userInfoArray = null;
 
         // fetch userInfo from USI1
         if((!$userInfoArray) && isset($_SESSION[self::$NAME]['usi1'])) {
             $login = unserialize(\Form1::decode_data($_SESSION[self::$NAME]['usi1'], true));
-            if((!isset($login['user_name']) || empty($login['user_name'])) && isset($login['email'])) $login['user_name'] = $login['email'];
-            if((isset($login['user_name']) && trim($login['user_name']) != '') && ( isset($login['password']) && trim($login['password']) != '')) $userInfoArray = $login;
+            if((!isset($login['user_name']) || empty($login['user_name'])) && isset($login['email']))
+                $login['user_name'] = $login['email'];
+            if((isset($login['user_name']) && trim($login['user_name']) != '') && ( isset($login['password']) && trim($login['password']) != ''))
+                $userInfoArray = $login;
         }
 
+
         // generate userInfo from Cookie
-        if($us1 = Cookie1::exists('usi1') && (Session1::get('cookie_login') === 1)){
+        if((!$userInfoArray) && ($us1 = Cookie1::exists('usi1')) /*&& (Session1::get('cookie_login') === 1)*/){
             list($user_id, $password) = json_decode($us1);
             if(!empty($user_id) && !empty($password)) {
                 $userInfoArray = $userClassNameToCastTo::login($user_id, $password, ['id'], ['password'], true);
@@ -6147,7 +6069,7 @@ class Session1{
      * @param $url
      * Save and Get Last Url before Requesting for login Auth. So you can resume user back to there init path
      */
-    static function setLastAuthUrl($url = null){ self::set('last_auth_url', $url? $url: Url1::getPageFullUrl()); }
+    static function setLastAuthUrl($url = null){  self::set('last_auth_url', $url? $url: Url1::getPageFullUrl()); }
     static function getLastAuthUrl($unset = true, $defaultIfFailed = null){ $last_url = $unset? self::getAndUnset('last_auth_url'): self::get('last_auth_url'); return $last_url? $last_url: $defaultIfFailed; }
 
 
@@ -6351,8 +6273,8 @@ class Popup1{
         /**if (!$this->issetData()) return;
         ?>
         <div class="panel panel-default panel-< ?php echo $this->getType() ?>">
-            <div class="panel-heading">< ?php echo $this->getTitle() ?></div>
-            <div class="panel-body"> < ?php echo $this->getBody($listItemOpeningTag, $listItemClosingTag ) ?> </div>
+        <div class="panel-heading">< ?php echo $this->getTitle() ?></div>
+        <div class="panel-body"> < ?php echo $this->getBody($listItemOpeningTag, $listItemClosingTag ) ?> </div>
         </div>
         < ?php*/
     }

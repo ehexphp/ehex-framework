@@ -43,7 +43,7 @@ class FrontendPage  extends Model1 implements Model1PageInterface {
 
     // Social List
     public $social_facebook = 'https://facebook.com/ehex';
-    public $social_twitter = 'https://twitter.com/ehex';
+    public $social_twitter = 'https://twitter.com/ehexphp';
     public $social_google_plus = 'https://googleplus.com/ehex';
     public $social_instagram = 'https://';
     public $social_pinterest= 'https://pinterest.com/ehex';

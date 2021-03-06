@@ -216,7 +216,8 @@ class RouteRequest
         $this->files = isset($_FILES) ? $_FILES : [];
         $this->cookies = $_COOKIE;
         $x_requested_with = isset($this->headers['x_requested_with']) ? $this->headers['x_requested_with'] : false;
-        $this->ajax = $x_requested_with === 'XMLHttpRequest';
+
+        $this->ajax = $x_requested_with === 'XMLHttpRequest' || String1::startsWith($this->path, '/api/');
     }
 
     /**
@@ -524,17 +525,15 @@ class RouteSystem
      * Constructor - Define some variables.
      * @param RouteRequest $req
      */
-    public function __construct(RouteRequest $req)
-    {
+    public function __construct(RouteRequest $req){
         $this->req = $req;
-
         // [XAMTAX] remove absolute path from URL
         $unwanted_fixurl = str_replace('index.php', '', $_SERVER['PHP_SELF']); // use replace last
         $wanted_url = str_replace($unwanted_fixurl, '/', ((isset($_SERVER['REDIRECT_URL']) && !empty($_SERVER['REDIRECT_URL'])) ?$_SERVER['REDIRECT_URL']: '/')); // use replace first
         $this->req->path = rtrim($wanted_url, '/').'/';
-        //print_r('<pre>'.    print_r( $unwanted_fixurl, true)      . '</pre>');
-
         @defined('URL') || @define('URL', $req->url, TRUE);
+        // middleware
+        if(!Config1::onMiddleware($this->req)) die(json_encode(ResultObject1::falseMessage('Forbidden: Middleware Denied!', 403)));
     }
 
     /**
@@ -544,9 +543,7 @@ class RouteSystem
      * @return RouteSystem|Route $this
      */
     public static function instance(RouteRequest $req){
-        if (null === static::$instance) {
-            static::$instance = new static($req);
-        }
+        if (null === static::$instance) static::$instance = new static($req);
         return static::$instance;
     }
 
@@ -561,67 +558,40 @@ class RouteSystem
      * @return $this
      */
     public function route(array $method, $uri, $callback, $options = []) {
-
         if (is_array($uri)) {
-            foreach ($uri as $u) {
-                $this->route($method, $u, $callback, $options);
-
-            }
+            foreach ($uri as $u) $this->route($method, $u, $callback, $options);
             return $this;
         }
 
-
-
-
-
         $options = array_merge(['ajaxOnly' => false, 'continue' => false], (array)$options);
-
         if ($uri != '/') {
             $uri = $this->removeDuplSlash($uri) . '/';
         }
-
 
         // Replace named uri param to regex pattern.
         $pattern = $this->namedParameters($uri);
         $this->currentUri = $pattern;
 
-
-
-
-
         if ($options['ajaxOnly'] == false || $options['ajaxOnly'] && $this->req->ajax) {
             // If matched before, skip this.
-
             if ($this->matched === false) {
-
                 // Prepare.
                 $pattern = $this->prepare(
                     str_replace(['/?', '/*'], [$this->pattern['/?'], $this->pattern['/*']], $this->removeDuplSlash($this->group . $pattern))
                 );
-
-
                 // If matched.
                 $method = count($method) > 0 ? in_array($this->req->method, $method) : true;
-
-
                 if ($method && $this->matched($pattern)) {
                     if ($this->isGroup) {
                         $this->prams = array_merge($this->pramsGroup, $this->prams);
                     }
-
                     $this->req->args = $this->bindArgs($this->prams, $this->matchedArgs);
-
                     $this->matchedPath = $this->currentUri;
                     $this->routeCallback[] = $callback;
-
-                    if ($options['continue']) {
-                        $this->matched = false;
-                    }
+                    if ($options['continue']) $this->matched = false;
                 }
             }
         }
-
-
 
         $this->_as($this->removeParameters($this->trimSlash($uri)));
         return $this;
@@ -636,8 +606,7 @@ class RouteSystem
      * @param array $options
      * @return $this
      */
-    public function group($group, callable $callback, array $options = [])
-    {
+    public function group($group, callable $callback, array $options = []){
         $options = array_merge([
             'as' => $group,
             'namespace' => $group
@@ -678,9 +647,6 @@ class RouteSystem
 
     public function resource($uri, $controller, $options = []){
 
-        //dd($uri, Url1::getPageFullUrl());
-
-
         $options = array_merge([
             'ajaxOnly' => false,
             'idPattern' => ':int',
@@ -692,29 +658,32 @@ class RouteSystem
         if (class_exists($controller)) {
             if(!Class1::isInterfaceImplementExistIn($controller,Controller1RouteInterface::class)) return Console1::dd(' Class '.$controller.' Does not implement [ '.Controller1RouteInterface::class.'].');
             $this->generated = false;
-            $as = $this->trimc($uri);
+
+            $as = trim($uri, '/\\');
+
             $as = ($this->getGroupAs() . '.') . $as;
+
 
             $withID = $uri.'/{id}'.$options['slugPattern'];
             $deleteMulti = $uri.'/{id}'.$options['multiIdPattern'];
 
-            $this->route(['GET'], $uri, [$controller, 'getIndexView'], $options)->_as($as);
+            $this->route(["GET"], $uri, [$controller, "index"], $options)->_as($as);
 
-            $this->route(['GET'], $uri. '/all', [$controller, 'getAllView'], $options)->_as($as.'.all');
+            $this->route(["GET"], $uri. "/all", [$controller, "all"], $options)->_as($as.".all");
 
-            $this->route(['GET'], $uri . '/create', [$controller, 'getCreateView'], $options)->_as($as.'.create');
+            $this->route(["GET"], $uri . "/create", [$controller, "create"], $options)->_as($as.".create");
 
-            $this->route(['GET'], $uri . '/manage', [$controller, 'getManageView'], $options)->_as($as.'.manage');
+            $this->route(["GET"], $uri . "/manage", [$controller, "manage"], $options)->_as($as.".manage");
 
-            $this->route(['GET'], $withID . '/edit', [$controller, 'getEditView'], $options)->_as($as.'.edit');
+            $this->route(["GET"], $withID . "/edit", [$controller, "edit"], $options)->_as($as.".edit");
 
-            $this->route(['GET'], [$uri . '/search', $uri . '/search/{id}'], [$controller, 'getSearchView'], $options)->_as($as.'.search');
+            $this->route(["GET"], [$uri . "/search", $uri . "/search/{id}"], [$controller, "search"], $options)->_as($as.".search");
 
-            $this->route(['PUT', 'PATCH', 'POST'], $withID, [$controller, 'processSave'], $options)->_as($as.'.update');
+            $this->route(["PUT", "PATCH", "POST"], $withID, [$controller, "processSave"], $options)->_as($as.".update");
 
-            $this->route(['DELETE'], $deleteMulti, [$controller, 'processDestroy'], $options)->_as($as.'.destroy');
+            $this->route(["DELETE"], $deleteMulti, [$controller, "processDestroy"], $options)->_as($as.".destroy");
 
-            $this->route(['GET'], $uri . '/*', [$controller, 'getShowView'], $options)->_as($as.'.show');
+            $this->route(["GET"], $uri . "/*", [$controller, "show"], $options)->_as($as.".show");
 
             /*$this->route([], $uri . '/*', function (RouteRequest $req, Response $res) {
                 http_response_code(404);
@@ -741,8 +710,7 @@ class RouteSystem
         //$controllers = $controllers;
         if (class_exists($controller)) {
             $methods = get_class_methods($controller);
-            foreach ($methods as $k => $v)
-            {
+            foreach ($methods as $k => $v) {
 
                 $split 		= $camelCase($v);
                 $request 	= strtoupper(array_shift($split));
@@ -752,7 +720,9 @@ class RouteSystem
                     $fullUri= $uri .'/';
                 }
 
-                $as 		= $this->trimc(strtolower($fullUri));
+                //$as 		= $this->trimc(strtolower($fullUri));
+                $as 		= trim(strtolower($fullUri), '/\\');
+
                 $as 		= ($this->getGroupAs() . '.') . $as;
                 $fullUri 	= [$fullUri.'/*', $fullUri];
                 $call 		= [$controller, $v];
@@ -808,8 +778,7 @@ class RouteSystem
      *
      * @return mixed
      */
-    protected function namedParameters($uri, $isGroup = false)
-    {
+    protected function namedParameters($uri, $isGroup = false){
         // Reset pattern and parameters to empty array.
         $this->patt = [];
         $this->prams = [];
@@ -926,8 +895,7 @@ class RouteSystem
      * @return $this
      * @throws \Exception
      */
-    public function _as($name)
-    {
+    public function _as($name){
         if (empty($name)) return $this;
         $name = rtrim($this->getGroupAs() . str_replace('/', '.', strtolower($name)), '.');
 //        if (array_key_exists($name, $this->routes)) {
@@ -961,7 +929,6 @@ class RouteSystem
         }
 
         $this->routes[$name] = ltrim($this->removeDuplSlash(strtolower($replaced)), '/');
-
         return $this;
     }
 
@@ -970,8 +937,7 @@ class RouteSystem
      * @param bool $replace
      * @return $this
      */
-    public function setGroupAs($as, $replace = false)
-    {
+    public function setGroupAs($as, $replace = false){
         $as = str_replace('/', '.', $this->trimSlash(strtolower($as)));
         $as = $this->removeParameters($as);
         $this->currentGroupAs = $as;
@@ -1010,13 +976,11 @@ class RouteSystem
      *
      * @return string|null
      */
-    public function getRoute($name, array $args = [])
-    {
+    public function getRoute($name, array $args = []){
         $name = strtolower($name);
 
         if (isset($this->routes[$name])) {
             $route = $this->routes[$name];
-
             foreach ($args as $k => $v) {
                 $route = str_replace(':' . $k, $v, $route);
             }
@@ -1102,6 +1066,15 @@ class RouteSystem
         return $this;
     }
 
+    /**
+     * Get the dashboard route. This can be modified in the .config onRoute $route->fixed field.
+     * @param null $default
+     * @return string
+     */
+    function getDashboardRoute($default = null){
+        return String1::isset_or($this->fixed['dashboard_route'], $default);
+    }
+
 
     /**
      * Run and get a response.
@@ -1113,7 +1086,7 @@ class RouteSystem
 
 
         // is maintenance mode
-        if( Config1::MAINTENANCE_MODE ){
+        if( Config1::MAINTENANCE_MODE && !is_debug_mode()){
             if(isset($this->fixed['maintenance']) && view_exists($this->fixed['maintenance'])) return view($this->fixed['maintenance']);
             else die('<div align="center" style="padding:50px;"><h1>Site Under Maintenance</h1><h5>Error! Maintenance View Not Found <hr/> '.$this->fixed['maintenance'].'</h5></div>');
         }

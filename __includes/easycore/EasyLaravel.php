@@ -38,6 +38,22 @@
 
 
 
+function framework_info(){
+    return Object1::toArrayObject(true, [
+        'name'=>'laravel',
+        'alias'=>'lv',
+        'description'=>'',
+        'version'=>'5.0',
+        'website'=>'https://laravel.com',
+        'author'=>[
+            'name'=>'Taylor Otwell',
+            'alias'=>'Otwell',
+            'email'=>'support@laravel.com',
+            'website'=>'https://laravel.com',
+        ],
+    ]);
+}
+
 
 
 class Form2{
@@ -217,7 +233,7 @@ class ServerRequest2{
         $targetMethod_debug_backtrace = debug_backtrace(null,2)[1];
         $signature = Array1::hashCode(debug_backtrace(null,2)[1]);
         global $__ENV;
-        if(!isset($__ENV['method_request_param'][$signature]))   $__ENV['method_request_param'][$signature] = array_merge( Object1::getParameterArgs( $targetMethod_debug_backtrace  ), static::$_request);
+        if(!isset($__ENV['method_request_param'][$signature]))   $__ENV['method_request_param'][$signature] = array_merge( Object1::getCurrentMethodParams( $targetMethod_debug_backtrace  ), static::$_request);
         return  Object1::toArrayObject(true, array_merge($defaultKeyValue, $__ENV['method_request_param'][$signature], ($addPhpInput? Array1::makeArray(@json_decode(file_get_contents('php://input'))): []) ));
     }
 
@@ -306,7 +322,7 @@ class ServerRequest2{
 
 
     private static function serverErrorAsResultObject1($functionAndClass = 'functionName', $parameterList = [], $exception = ''){
-        return json_encode( (new ResultObject1(false,  $exception, String1::escapeQuotes($functionAndClass)))->toArray() ); // RegEx1::getSanitizeAlphaNumeric($functionAndClass, '_') . '( '       .implode(',,,', $parameterList).        ' ) call'
+        return json_encode( (new ResultObject1(false,  $exception, String1::escapeQuotes($functionAndClass), 400))->toArray() ); // RegEx1::getSanitizeAlphaNumeric($functionAndClass, '_') . '( '       .implode(',,,', $parameterList).        ' ) call'
     }
 
 

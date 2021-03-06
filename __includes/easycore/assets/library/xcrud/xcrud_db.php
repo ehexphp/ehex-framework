@@ -52,7 +52,8 @@ class Xcrud_db
 
     private function __construct($dbuser, $dbpass, $dbname, $dbhost, $dbencoding)
     {
-        $this->magic_quotes = get_magic_quotes_runtime();
+
+        $this->magic_quotes =  ini_set('magic_quotes_runtime', 0); //get_magic_quotes_runtime();
         if (strpos($dbhost, ':') !== false)
         {
             list($host, $port) = explode(':', $dbhost, 2);

@@ -18,7 +18,7 @@
                 {!! HtmlForm1::addInput('Access Token', ['placeholder'=>'Your Access Token', 'name'=>"access_token", 'required']) !!}
                 {!! HtmlForm1::addInput('New Password', ['type'=>'password', 'placeholder'=>'Your New Password', 'name'=>"password", 'required']) !!}
 
-                <div  style="margin:15px 0 10px 0;" class="clearfix"> <span class="pull-right"> <a href="{{ routes()->forgot_password }}">Resend Token</a></span> </div>
+                <div  style="margin:15px 0 10px 0;" class="clearfix"> <span class="pull-right"> <a href="{{ routes()->forgot_password }}" up-target="main">Resend Token</a></span> </div>
                 {!! HtmlForm1::close('Reset', ['class'=>'btn btn-block btn-primary']) !!}
             </div>
         </div>
