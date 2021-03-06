@@ -1,8 +1,9 @@
-# Welcome to Ehex (ex 1.5) 
+# Welcome to Ehex v2.0 
 Powerful and Friendly Php Framework, Created with many features. 
+
 > Read Full Documentation now  [Documentation](https://ehexphp.github.io/ehex-docs/#/)  and Check out  [Api Documentation](https://ehexphp.github.io/ehex-docs-api/ ':include :type=iframe width=100% height=800px')
 
-## Ehex or Simply EX.
+## Ehex.
 is an Application Development Framework - a toolkit - for people who build web sites using PHP. Its goal is to enable you to develop projects much faster than you could if you were writing code from scratch, by providing a rich set of libraries for commonly needed tasks, as well as a simple interface and logical structure to access these libraries. EX lets you creatively focus on your project by minimizing the amount of code needed for a given task.
 More so, Ehex has similar functions and features with [_Laravel_](https://laravel.com), 
 i.e, your experience with Laravel Blade and Eloquent Query Builder are still useful here, 
