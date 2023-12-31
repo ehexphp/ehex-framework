@@ -4,8 +4,7 @@
  *
  * Framework : Ehex (https://github.com/ehexphp/ehex-framework)
  * Description : Simple, Clean and Comprehensive Framework
- * Author :  Samson Oyetola (hello@samsonoyetola.com)
- * Version : version 2.0
+ * Author :  Samson Oyetola (samson.oyetola@xamtax.com)
  *
  * This file contains the following configurations:
  *  - Global Environment Variable
@@ -19,10 +18,6 @@
 
 
 
-
-
-
-
 class Config1{
 
     /**
@@ -30,31 +25,52 @@ class Config1{
      * Retrieve with e.g env("DB_NAME") or getConfig("DB_NAME")
      */
     const ENVs = [
-        '.env'=>['https://sampletrade.local', 'http://localhost'],
-        '.prod.env'=>['https://oaktreefinances.com', 'https://test.oaktreefinances.com']
+        '.env'=>['http://localhost', 'https://myapp.local'],
+        '.prod.env'=>['https://myapp.com']
     ];
 
 
-    // APP Information
+    /**
+     * Password Encryption Hash. Can generate a new one when you run Db1::help();
+     */
     const APP_KEY = 'base64:jxq0fX+1/CQEyvB1kl+xVvW97kvENMT';
-    const APP_TITLE ='OakTreeFinances';
-    const APP_FANCY_TITLE = '<strong class="text-light" style="font-weight: 800; font-size: 0.7em"> OAK TREE <img style="width: 45px" src="/assets/logo/45.gif" alt="logo" /> FINANCES </strong>';
-    const APP_DESCRIPTION = 'OakTreeFinances';
 
-    // auto load
+    /**
+     * Simply Application title
+     */
+    const APP_TITLE ='Ehex (ex)';
+
+    /**
+     * Application title that can include html and css
+     */
+    const APP_FANCY_TITLE = '<strong>Ehex</strong> <span>Framework</span>';
+
+    /**
+     * Website description
+     */
+    const APP_DESCRIPTION = 'Powerful and Friendly Framework';
+
+    /**
+     * Enable CLF Access to class functions.
+     */
     const MODELS_CLF_CALLABLE_LIST=["*"];
-    const AUTO_PAGE_WRAPPER = true;    // RECOMMENDED for auto includes of Page1::start(), Page1::end() for every page and JQUERY.
-    const ENABLE_INCLUDES_SHARED = true;
-    const EXCLUDE_CLASS = [];
 
-    // APP developer
-    const APP_DEVELOPER_NAME = 'iNetTravel';
-    const APP_DEVELOPER_EMAIL = 'contact@inettravel.ca';
-    const APP_DEVELOPER_WEBSITE = 'https://inettravel.ca';
+    /**
+     * Add JQUERY to every page automatically. It will add Page1::start(), Page1::end() for every page.
+     */
+    const AUTO_PAGE_WRAPPER = true;
 
-    // imgur
-    const IMGUR_CLIENT_ID = '9c85d34fc4a2ec9';
-    const IMGUR_CLIENT_SECRET = '2cc1a5c790ad8dc43fda840da25ea14f6966f1e8';
+    /**
+     * By default, classes are auto-loaded ahead-of-time. However, you can specify classes to ignore
+     */
+    const EXCLUDE_AUTOLOAD_CLASS = [];
+
+    /**
+     * Developer company info. Optional
+     */
+    const APP_DEVELOPER_NAME = 'Ehex';
+    const APP_DEVELOPER_EMAIL = 'ehex.framework@xamtax.com';
+    const APP_DEVELOPER_WEBSITE = 'https://ehex.xamtax.com';
 
 
     /**
@@ -64,55 +80,39 @@ class Config1{
     static function onRoute($route) {
         // Test Email Template
         /*$route->get('/', function(){
-            echo view_make('emails.verify', [
+            echo view_make('pages.emails.verify', [
                 'url'=> Form1::callController(User::class.'@processVerifyAccount('.encode_data('hell@gmail.com').')'),
                 'content'=> "Hi, <br>Take control of yoe",
             ]);
-        });*/
-
-        $route->view('/', 'index');
-        $route->view('/tokenization', 'home_tokenization');
-        $route->view('/ai-trading', 'home_ai_trading');
-        $route->view('/401k-crypto-investment', 'home_401k_investment');
-        $route->view('/terms-and-conditions', 'terms_and_condition');
-        $route->view('/privacy-policy', 'privacy_policy');
-        $route->view('/about', 'about');
-        $route->view('/dashboard', 'dashboard');
-
-        $route->view('/admin', 'admin');
-
-        $route->view('/contact', 'contact');
-        $route->view('/login', 'login');
-        $route->view('/register', 'register');
-        $route->view('/profile', 'profile');
-
-
-        $route->view('/deposit', 'deposit');
-        $route->view('/withdraw', 'withdraw');
-        $route->view('/transactions/history', 'transactions');
-
-        $route->view('/investments/create', 'create_investment');
-        $route->view('/investments/transactions', 'investments');
-
-
-        $route->get('/logout', function(){
-            echo "redirecting...";
-            User::logout('/login');
         });
+        return;*/
+
+
+
+        /**
+         * Turn a view directory to route
+         */
+        // $route->directory('pages.common');
+
+
+        /**
+         * Home Page
+         */
+        $route->view('/', 'pages.homepage.index');
+
 
         /**
          * Compile all model's route
          */
-        // Dashboard::onRoute($route);
+        Dashboard::onRoute($route);
 
         /**
          * For Dashboard route, Error 404 and Site Under-Construction
          */
         $route->fixed([
-            // 'dashboard_route'=>'dashboard',
-            // '/error404'=>'common/error404',
-            '/error404'=>'common.error404',
-            '/maintenance'=>'common.maintenance_mode'
+            'dashboard_route'=>'dashboard',
+            'error404'=>'pages.common.error404',
+            'maintenance'=>'pages.common.maintenance_mode'
         ]);
 
 

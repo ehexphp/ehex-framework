@@ -1,8 +1,5 @@
 <?php
 
-
-
-
 /**
  * @backupGlobals disabled
  */
@@ -59,8 +56,7 @@ trait UserTrait {
     static function sendVerificationMail($email = '', $userName = '', $alert = false){
         // $mail_body = "<h3>Welcome to ".Config1::APP_TITLE.".</h3> <p>".Config1::APP_DESCRIPTION."</p> We are happy to have you here...  Please, Kindly verify your account now. $verifyLink <br/><br/><h5>-- Regards from ".Config1::APP_TITLE." --</h5>";
         // $mailResult = exMail1::mailerSendMailToList([$result['email'] => $result['user_name']], Config1::APP_TITLE.' - Account Created Successfully', $mail_body);
-
-        $result = exMail1::mailerSendMailToList([$email => $userName], 'Account Created Successfully', view_make('emails.verify', ['url'=> Form1::callController(static::class.'@processVerifyAccount('.encode_data($email).')') ])); //null, null, null, true
+        $result = exMail1::mailerSendMailToList([$email => $userName], 'Account Created Successfully', view_make('pages.auth.mail.verity', ['url'=> Form1::callController(static::class.'@processVerifyAccount('.encode_data($email).')') ]));
         if($alert) Session1::setStatus("Mail Result", $result->getMessage(), 'info');
         return $result;
     }
@@ -79,18 +75,10 @@ trait UserTrait {
     static function processLogin(){
         // validate
         Validation1::validate( ['user_name', 'password'], ['user_name'=>'required',  'password'=>'required|min:6'], [], [],true);
-
         // login
         $result = User::login($_REQUEST['user_name'], $_REQUEST['password'], ['user_name', 'id', 'email'], ['password'], true);
-
-        // Send email to user
-        exMail1::mailerSendMailToList([$result->email => $result->user_name], 'Login Successfully', view_make('emails.login')); //null, null, null, true
-
-        // Redirect user to dashboard
-        Url1::redirectIf(Session1::getLastAuthUrl(true, routes()->dashboard), '', $result);
-
-        // if it reached here, then it's a failure.
-        Session1::setStatus('Failed', $result->getMessage(), 'error');
+        Url1::redirectIf(Session1::getLastAuthUrl(true, routes()->dashboard), '', $result);    // on success redirect
+        Session1::setStatus('Failed', $result->getMessage(), 'error'); // on error, set status
     }
 
 
@@ -109,28 +97,18 @@ trait UserTrait {
 
         // Register
         $result = User::register($_REQUEST, ['email', 'user_name'], true);
-
         // Upload Avatar and Login
         if($result) {
             // save referral
             //UserReferral::createReferral($result->id);
-
             // upload avatar
-            if(array_key_exists('dp_avatar', $_FILES)) {
-                $result->uploadAvatar($_FILES['dp_avatar']['tmp_name']);
-            }
-
+            $result->uploadAvatar($_FILES['dp_avatar']['tmp_name']);
             // login
             $login = (boolean) User::login(String1::isset_or($_REQUEST['email'], $_REQUEST['user_name']),  $_REQUEST['password'], ['user_name', 'id', 'email'], ['password'], true);
-
             // mail
-            if(String1::isset_or($result['email'], null)) {
-                User::sendVerificationMail($result['email'], $result['user_name']);
-            }
-
-            Url1::redirectIf(routes()->dashboard, ['Success', 'Account Successfully Created, Please verify your email', 'success'],  $login);
+            if(String1::isset_or($result['email'], null)) User::sendVerificationMail($result['email'], $result['user_name']);
+            Url1::redirectIf(routes()->dashboard, ['Success', 'Please Login, Account Successfully Created'],  $login);
         }
-
         // if Failed!
         Session1::setStatus('Error Occurred', $result->getMessage(), 'error');
     }
@@ -172,7 +150,6 @@ trait UserTrait {
         // change avatar
         if(isset($_FILES['dp_avatar'])) $userInfo->uploadAvatar($_FILES['dp_avatar']['tmp_name']);
 
-
         // filter and disabled primary data
         unset($_POST['avatar'], $_POST['role']);
 
@@ -191,8 +168,10 @@ trait UserTrait {
                 Session1::setLastAuthUrl();
                 User::re_login();
             }
-            else Session1::setStatus('Password not match', 'Password not match, please ensure your old password is tally', 'error');
+            else Session1::setStatus('Password not Match', 'Password not Match, Please ensure your old password', 'error');
         }
+
+        Url1::redirect(Url1::backUrl());
     }
 
 
@@ -286,25 +265,32 @@ trait UserTrait {
      */
     static function onRoute($route){
         $route->view('/user/manage', 'pages.common.dashboard.admin.manage_user');    // manage user
-        $route->get('/dashboard', function (){ view( User::isAdmin()? 'pages.common.dashboard.admin.index': 'pages.common.dashboard.user.index'); });
+        $route->get('/dashboard', function (){
+            echo view( User::isAdmin()? 'pages.common.dashboard.admin.index': 'pages.common.dashboard.user.index');
+        });
         $route->view('/user/dashboard',  'pages.common.dashboard.user.index');
         $route->view('/profile', 'pages.common.dashboard.user.profile');
 
         // auth
         $route->view('/forgot_password','pages.auth.forgot_password');
         $route->view('/reset_password', 'pages.auth.reset_password');
+
         $isLoginFound = function () use ($route){
-            if(User::isLoginExist()) Url1::redirect(url($route->getDashboardRoute()), ['Welcome Back', 'You have logged in already, please Logout out first and try again', 'error']);
+            if(User::isLoginExist()) {
+                Url1::redirect(url('dashboard'), ['Welcome Back', 'You have logged in already, please Logout out first and try again', 'error']);
+            }
             return false;
         };
-        $route->any('/register', function() use ($isLoginFound){
+
+        $route->get('/register', function() use ($isLoginFound){
             if(!$isLoginFound()) echo view('pages.auth.register');
         });
-        $route->any('/login', function() use ($isLoginFound){
+        $route->get('/login', function() use ($isLoginFound){
             if(!$isLoginFound()) echo view('pages.auth.login');
         });
-        $route->any('/logout', function() {
-            return User::logout();
+        $route->get('/logout', function() {
+            echo "redirecting...";
+            User::logout('/login');
         });
         $route->get('/delete_account', function() {
             User::getLogin(false)->delete();

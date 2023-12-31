@@ -1,8 +1,5 @@
 <?php
 
-
-
-
 class CopyrightInfringement extends Model1 implements Model1ActionInterface {
 
     public static $HEADER_TITLE = 'Copyright Infringement';

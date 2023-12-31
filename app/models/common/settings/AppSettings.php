@@ -1,7 +1,5 @@
 <?php
 
-
-
 /**
  * @backupGlobals disabled
  */
@@ -54,24 +52,16 @@ class AppSettings {
 
 
     /**
-     * Todo: optimise
      * List All Assets Information
      * @return array
      */
     static function getLayoutAndPlugin(){
         $all = [
-            'Plugin [App]'=>self::getFolderDataList(PATH_PLUGINS),
-            'Layout [App]'=>self::getFolderDataList(PATH_LAYOUTS),
+            'Plugins'=>self::getFolderDataList(PATH_PLUGINS),
+            'Layouts'=>self::getFolderDataList(PATH_LAYOUTS),
         ];
-        // If Shared is not in app, it means all shared resource assets are saved in app assets
-        $all = array_merge($all, [
-            'Plugin [Shared]'=>self::getFolderDataList(PATH_SHARED_RESOURCE.'plugins/'),
-            'Layout [Shared In Assets]'=>FileManager1::getDirectoriesFolders(PATH_SHARED_RESOURCE.'views/layouts/'),
-        ]);
-
         return array_merge($all, [
-            'Assets [App]'=>self::getFolderDataList(path_asset()),
-            'Assets [Shared]'=>FileManager1::getDirectoriesFolders(path_shared_asset()),
+            'Assets'=>self::getFolderDataList(path_asset()),
         ]);
     }
 
@@ -110,10 +100,14 @@ class AppSettings {
      */
     static function deleteDirectory($path){
         $name = self::cleanFileName($path);
-        if(String1::contains('/shared/resources/', $path)) return Session1::setStatus('Cannot Delete MultiSite Shared Assets', "Deleting $name is a Bad Idea!, We Found a MultiSite Configuration on this Site and therefore, You cannot delete Shared Resources because other website might depends on it. You can put a copy of Include/Shared folder in your Website to allow this operation", 'error');
+
         try{
-            if(FileManager1::delete($path)) return Session1::setStatus('Deleted Successfully', "You have deleted $name Successfully ",'success');
-            else throw new Exception("Failed to delete $name, Due to Some evil eye");
+            if(FileManager1::delete($path)) {
+                return Session1::setStatus('Deleted Successfully', "You have deleted $name Successfully ",'success');
+            }
+            else {
+                throw new Exception("Failed to delete '$name' due to Some evil eye");
+            }
         }catch (Exception $exception){
             return Session1::setStatus('Error Deleting Resources', $exception->getMessage(),'error');
         }

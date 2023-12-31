@@ -1,9 +1,5 @@
 <?php
 
-
-
-
-
 /**
  * @backupGlobals disabled
  */
@@ -61,7 +57,7 @@ HTML;
      * @param $route
      */
     static function onRoute($route){
-        exRoute1::instance()->view('/contact', 'pages.common.contact.index');
+        $route->view('/contact', 'pages.common.contact.index');
     }
 
 
@@ -98,7 +94,7 @@ HTML;
             return Session1::setStatus('Field Missing', "Fill all the missing Field");
 
 
-        $result = Url1::sendEmail(env('MAIL_EMAIL'), "Message from ".env('APP_TITLE'), "
+        $result = Url1::sendEmail(Config1::MAIL_EMAIL, "Message from ".Config1::APP_TITLE, "
             FullName: $_REQUEST[full_name] \n
             Email: $_REQUEST[email] \n
             description: $_REQUEST[description] \n
@@ -108,39 +104,12 @@ HTML;
         $result2 = self::insertOrUpdate(request(['is_active']));
 
         if(!$result)
-            Session1::setStatus('Message Saved', "We failed to send an email at the moment, but we have saved a copy into our system where we can see it. You can also contact us via ".env('MAIL_EMAIL')." should you have emergency", "success");
+            Session1::setStatus('Message Saved', "We failed to send an email at the moment, but we have saved a copy into our system where we can see it. You can also contact us via ".Config1::MAIL_EMAIL." should you have emergency", "success");
         else
             Session1::setStatus('Message Sent', "We will get back to you shortly", "success");
         return null;
     }
 
 
-    static function processContact($full_name, $email, $phone_number, $message){
-        Validation1::validate($_REQUEST, [
-            'full_name'=>'required',
-            'email'=>'required',
-            'message'=>'required',
-        ], [], [], true);
 
-        exMail1::mailerSendMailToList([FrontendPage::getDefault()->contact_email=>"Support"], "Request", view_make('emails.blank', ['content'=>"
-            <p>Full Name: $full_name</p>
-            <p>Email: $email</p>
-            <p>Phone Number: $phone_number</p>
-            <hr>
-            <p>$message</p>
-        "]));
-        Session1::setStatus('Message Sent', "We will get back to you shortly", "success");
-    }
-
-
-    static function processSendEmail($email, $subject, $body){
-        Validation1::validate($_REQUEST, [
-            'email'=>'required',
-            'subject'=>'required',
-            'body'=>'required',
-        ], [], [], true);
-
-        exMail1::mailerSendMailToList([$email=>null], $subject, view_make('emails.blank', ['content'=>$body]));
-        Session1::setStatus('Message Sent', "Message successfully sent to $email", "success");
-    }
 }

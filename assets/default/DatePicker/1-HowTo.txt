@@ -1,0 +1,27 @@
+
+
+
+<input name="date"  type="text" id="day_date" class="form-control" placeholder="Date">
+
+
+ <!-- Bootstrap Date-Picker Plugin -->
+<link rel="stylesheet" href="{{ layout_asset('') }}/DatePicker/bootstrap-datepicker3.css"/>
+ <script type="text/javascript" src="{{ layout_asset('') }}/DatePicker/bootstrap-datepicker.min.js"></script>
+ <script>
+     // A Date Picker
+     $(function(){
+         var date_input=$('input[id="day_date"]'); //our date input has the name "date"
+         var container=$('.bootstrap-iso form').length>0 ? $('.bootstrap-iso form').parent() : "body";
+         var options={
+             format: 'yyyy-mm-dd',
+             container: container,
+             todayHighlight: true,
+             autoclose: true,
+             startDate: '+0d'
+         };
+         date_input.datepicker(options);
+     });
+ </script>
+
+
+

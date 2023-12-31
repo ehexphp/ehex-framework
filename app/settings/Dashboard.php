@@ -1,9 +1,6 @@
 <?php
 
 
-
-
-
 /**
  * This is a dynamic settings class for your site. if you are using the default dashboard and you want everything to be automatic.
  * It generate the settings to use for dashboard(e.g Dashboard Sidebar menu, And Knows when menu is active, And for admin Page, e.t.c).
@@ -38,11 +35,11 @@ class Dashboard {
      */
     static function getNotification(){
         return [
-            'count'=>0,
+            'count'=>2,
             'link'=>url('/inbox'),
             'message'=>[
-                //['title'=>'Account is Active', 'description'=>'Your Account is Active', 'link'=>'#'],
-                //['title'=>'How to use your Dashboard', 'description'=>'Visit Ehex Shards Dashboard Documentation for Your Dashboard tutorial', 'link'=>'#']
+                ['title'=>'Account is Active', 'description'=>'Your Account is Active', 'link'=>'#'],
+                ['title'=>'How to use your Dashboard', 'description'=>'Visit Ehex Shards Dashboard Documentation for Your Dashboard tutorial', 'link'=>'#']
             ]
         ];
     }
@@ -58,13 +55,6 @@ class Dashboard {
             ['name'=>'All User',    'icon'=>'fa fa-user',   'value'=>User::count(), 'linkName'=>'Visit', 'linkUrl'=>Dashboard::getManageUrl(User::class)],
         ];
     }
-
-
-
-
-
-
-
 
 
 
@@ -218,7 +208,9 @@ class Dashboard {
         }
 
         // app settings
-        if(class_exists("AppSettings")) AppSettings::onRoute($route);
+        if(class_exists("AppSettings")) {
+            AppSettings::onRoute($route);
+        }
 
         // others and view only route
         $others = [
@@ -229,6 +221,7 @@ class Dashboard {
             '/terms_and_condition'=> 'pages.common.policy.terms_and_condition',
             '/privacy_policy'=> 'pages.common.policy.privacy_policy',
         ];
+
         foreach ($others as $url=>$view){
             $route->view($url, $view);
         }
@@ -269,7 +262,7 @@ class Dashboard {
         $menu = [
             url('/dashboard')=>'<i class="fa fa-user"></i> Dashboard',
             url('/profile')=>'<i class="fa fa-gear"></i> Settings',
-            //url('/blog')=>'<i class="fa fa-globe"></i> Blog',
+            url('/blog')=>'<i class="fa fa-globe"></i> Blog',
         ];
         if(User::isAdmin()){
             $menu[url('blog/manage')] = '<i class="fa fa-picture-o"></i> Manage Blog';
@@ -285,10 +278,10 @@ class Dashboard {
     static function getMenuFooter(){
         return [
             url('/')=>'Home',
-            //url('/about')=>'About',
+            url('/about')=>'About',
             url('/dashboard')=>'Dashboard',
             url('/contact')=>'Contact',
-            //url('/blog')=>'Blog',
+            url('/blog')=>'Blog',
         ];
     }
 
@@ -297,7 +290,7 @@ class Dashboard {
      * Footer Copyright link
      */
     static function getFooterCopyrightBody(){
-        return 'Copyright © '.date('Y').' <a href="'.Url1::getDomainName().'" rel="nofollow">'.Config1::APP_TITLE.'</a> Designed by <a href="'.Config1::APP_DEVELOPER_WEBSITE.'" rel="nofollow">'.Config1::APP_DEVELOPER_NAME.'</a>. <br/>Proudly Powered by <a href="https://jupiter.com" rel="nofollow">Jupiter</a>&nbsp;';
+        return 'Copyright © '.date('Y').' <a href="'.Url1::getDomainName().'" rel="nofollow">'.Config1::APP_TITLE.'</a> Designed by <a href="'.Config1::APP_DEVELOPER_WEBSITE.'" rel="nofollow">'.Config1::APP_DEVELOPER_NAME.'</a>. <br/>Proudly Powered by <a href="https://ehex.xamtax.com" rel="nofollow">Ehex</a>&nbsp;';
     }
 
 }
