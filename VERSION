@@ -1,0 +1,9 @@
+v2.0.0
+
+git add .
+git commit -m "new update"
+git push
+git push origin main -f
+
+git tag v2.0.0
+git push origin v2.0.0
