@@ -36,7 +36,7 @@ class Faqs extends Model1 implements Model1ActionInterface {
         if(Auth1::isAdmin()){
             $route->view('/faqs/create', 'pages.common.faqs.admin.edit');
             $route->get('/faqs/edit/?', function($id){ return view('pages.common.faqs.admin.edit', ['id'=>$id]); });
-        } exRoute1::view('/faqs','pages.common.faqs.index');
+        } $route->view('/faqs','pages.common.faqs.index');
     }
 
 

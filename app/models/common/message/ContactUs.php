@@ -57,7 +57,7 @@ HTML;
      * @param $route
      */
     static function onRoute($route){
-       exRoute1::view('/contact', 'pages.common.contact.index');
+        $route->view('/contact', 'pages.common.contact.index');
     }
 
 

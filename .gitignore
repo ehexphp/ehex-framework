@@ -1,12 +1,9 @@
-__includes/
+### Intellij ###
+# Covers JetBrains IDEs: IntelliJ, RubyMine, PhpStorm, AppCode, PyCharm
+*.iml
+.idea/
 
-resources/cache/database/*
-!resources/cache/database/.gitkeep
-
-resources/cache/file_session/*
-!resources/cache/file_session/.gitkeep
-
-resources/cache/views/*
-!resources/cache/views/.gitkeep
-
-resources/cache/cookies.txt
+# Other
+.DS_Store
+vendor/
+resources/cache/

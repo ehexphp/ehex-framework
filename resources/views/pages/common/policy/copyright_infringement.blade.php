@@ -52,7 +52,7 @@
                                                 <br/><br/><label class="btn btn-default">Upload Avatar<input style="display: none" id="dp_avatar" class="form-control" type="file" name="image" onchange="Picture1.uploadPreview(this, 'image_preview')"></label>
                                             </div>
                                         </div>--}}
-                                        <div class="col-md-12">  {!! HtmlForm1::addInput('<br/>Product Link<br/>', ['placeholder'=>Url1::getSiteMainAddress().'/product_link', 'name'=>"product_link"]) !!} </div>
+                                        <div class="col-md-12">  {!! HtmlForm1::addInput('<br/>Product Link<br/>', ['placeholder'=>Url1::getDomainName().'/product_link', 'name'=>"product_link"]) !!} </div>
                                         <div class="col-md-12">  {!! HtmlForm1::addInput('<br/>Official Website<br/>', [ 'value'=>old('official_website'), 'placeholder'=>'Official Website', 'name'=>"official_website"]) !!} </div>
                                         <div class="col-md-12">  {!! HtmlForm1::addInput('<br/>Email<br/>', ['value'=>$userInfo, 'placeholder'=>'Your Email', 'name'=>"email", 'required']) !!} </div>
                                         <div class="col-md-12">  {!! HtmlForm1::addTextArea('<br/>Say Something<br/>', ['style'=>'height:300px;', 'value'=>old('description'), 'placeholder'=>'Say Something on it...', 'name'=>"description", 'required']) !!} </div>

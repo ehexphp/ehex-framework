@@ -150,7 +150,6 @@ trait UserTrait {
         // change avatar
         if(isset($_FILES['dp_avatar'])) $userInfo->uploadAvatar($_FILES['dp_avatar']['tmp_name']);
 
-
         // filter and disabled primary data
         unset($_POST['avatar'], $_POST['role']);
 
@@ -171,6 +170,8 @@ trait UserTrait {
             }
             else Session1::setStatus('Password not Match', 'Password not Match, Please ensure your old password', 'error');
         }
+
+        Url1::redirect(Url1::backUrl());
     }
 
 
@@ -264,25 +265,32 @@ trait UserTrait {
      */
     static function onRoute($route){
         $route->view('/user/manage', 'pages.common.dashboard.admin.manage_user');    // manage user
-        $route->get('/dashboard', function (){ view( User::isAdmin()? 'pages.common.dashboard.admin.index': 'pages.common.dashboard.user.index'); });
+        $route->get('/dashboard', function (){
+            echo view( User::isAdmin()? 'pages.common.dashboard.admin.index': 'pages.common.dashboard.user.index');
+        });
         $route->view('/user/dashboard',  'pages.common.dashboard.user.index');
         $route->view('/profile', 'pages.common.dashboard.user.profile');
 
         // auth
         $route->view('/forgot_password','pages.auth.forgot_password');
         $route->view('/reset_password', 'pages.auth.reset_password');
+
         $isLoginFound = function () use ($route){
-            if(User::isLoginExist()) Url1::redirect(url($route->getDashboardRoute()), ['Welcome Back', 'You have logged in already, please Logout out first and try again', 'error']);
+            if(User::isLoginExist()) {
+                Url1::redirect(url('dashboard'), ['Welcome Back', 'You have logged in already, please Logout out first and try again', 'error']);
+            }
             return false;
         };
-        $route->any('/register', function() use ($isLoginFound){
+
+        $route->get('/register', function() use ($isLoginFound){
             if(!$isLoginFound()) echo view('pages.auth.register');
         });
-        $route->any('/login', function() use ($isLoginFound){
+        $route->get('/login', function() use ($isLoginFound){
             if(!$isLoginFound()) echo view('pages.auth.login');
         });
-        $route->any('/logout', function() {
-            return User::logout();
+        $route->get('/logout', function() {
+            echo "redirecting...";
+            User::logout('/login');
         });
         $route->get('/delete_account', function() {
             User::getLogin(false)->delete();

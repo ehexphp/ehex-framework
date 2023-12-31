@@ -25,7 +25,7 @@
 
     <!-- Footer Menu for all Menu-->
     @section('page_content')
-        <script src="{{ shared_asset() }}/jquery/js/jquery3.3.1.min.js" type="text/javascript"></script>
+        <script src="{{ asset('/default') }}/jquery/js/jquery3.3.1.min.js" type="text/javascript"></script>
         {!! HtmlWidget1::footerPopup( HtmlWidget1::listLink('Site Menu', ['Home'=>url('/'), 'About'=>url('about')] ), 'Menu List', 'left'); !!}
     @show
 </body>

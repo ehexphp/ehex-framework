@@ -41,7 +41,7 @@ $page_title = 'Terms and Condition';
                             <h3 class="text-danger">Terms and Condition</h3>
 
                             <?php
-                                $companyName = Url1::getSiteMainAddress();
+                                $companyName = Url1::getDomainName();
                                 $companyEmail = $frontendPage->contact_email;
                                 $siteName = String1::replaceMany(strtolower(Url1::getSiteName()), ['http://', 'https://']);
                                 $companyHelpEmail = 'help@'.$siteName;

@@ -14,8 +14,8 @@
 
 
 @section('page_content')
-    <link rel="stylesheet" href="{{ shared_asset() }}/autocomplete-tag/helper/normalize.min.css"/>
-    <link rel="stylesheet" href="{{ shared_asset() }}/autocomplete-tag/style.css"/>
+    <link rel="stylesheet" href="{{ asset('/default') }}/autocomplete-tag/helper/normalize.min.css"/>
+    <link rel="stylesheet" href="{{ asset('/default') }}/autocomplete-tag/style.css"/>
 
 
     <!-- / .main-navbar -->
@@ -230,9 +230,9 @@
 
 
     <!-- Auto-complete Tag-->
-    {{--<script src="{{ shared_asset() }}/jquery/js/jquery2.1.3.min.js"></script>--}}
-    <script src="{{ shared_asset() }}/autocomplete-tag/helper/modernizr.min.js"></script>
-    <script src="{{ shared_asset() }}/autocomplete-tag/script.js"></script>
+    {{--<script src="{{ asset('/default') }}/jquery/js/jquery2.1.3.min.js"></script>--}}
+    <script src="{{ asset('/default') }}/autocomplete-tag/helper/modernizr.min.js"></script>
+    <script src="{{ asset('/default') }}/autocomplete-tag/script.js"></script>
 
     <script>
         /**

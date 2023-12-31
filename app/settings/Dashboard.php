@@ -65,13 +65,6 @@ class Dashboard {
 
 
 
-
-
-
-
-
-
-
     /************************************************************************************************************************
      *
      * DASHBOARD UTIL
@@ -215,7 +208,9 @@ class Dashboard {
         }
 
         // app settings
-        if(class_exists("AppSettings")) AppSettings::onRoute($route);
+        if(class_exists("AppSettings")) {
+            AppSettings::onRoute($route);
+        }
 
         // others and view only route
         $others = [
@@ -226,6 +221,7 @@ class Dashboard {
             '/terms_and_condition'=> 'pages.common.policy.terms_and_condition',
             '/privacy_policy'=> 'pages.common.policy.privacy_policy',
         ];
+
         foreach ($others as $url=>$view){
             $route->view($url, $view);
         }
@@ -294,7 +290,7 @@ class Dashboard {
      * Footer Copyright link
      */
     static function getFooterCopyrightBody(){
-        return 'Copyright © '.date('Y').' <a href="'.Url1::getSiteMainAddress().'" rel="nofollow">'.Config1::APP_TITLE.'</a> Designed by <a href="'.Config1::APP_DEVELOPER_WEBSITE.'" rel="nofollow">'.Config1::APP_DEVELOPER_NAME.'</a>. <br/>Proudly Powered by <a href="https://ehex.xamtax.com" rel="nofollow">Ehex</a>&nbsp;';
+        return 'Copyright © '.date('Y').' <a href="'.Url1::getDomainName().'" rel="nofollow">'.Config1::APP_TITLE.'</a> Designed by <a href="'.Config1::APP_DEVELOPER_WEBSITE.'" rel="nofollow">'.Config1::APP_DEVELOPER_NAME.'</a>. <br/>Proudly Powered by <a href="https://ehex.xamtax.com" rel="nofollow">Ehex</a>&nbsp;';
     }
 
 }

@@ -64,9 +64,10 @@ class NewsLetter extends Model1 implements Model1ActionInterface {
 
     static function onRoute($route){
         if(Auth1::isAdmin()){
-            exRoute1::view('/newsletter/create', 'pages.common.newsletter.admin.edit');
-            exRoute1::get('/newsletter/edit/?', function($id){ return view('pages.common.newsletter.admin.edit', ['id'=>$id]); });
-        } exRoute1::view('/newsletter', 'pages.common.newsletter.index');
+            $route->view('/newsletter/create', 'pages.common.newsletter.admin.edit');
+            $route->get('/newsletter/edit/?', function($id){ return view('pages.common.newsletter.admin.edit', ['id'=>$id]); });
+        }
+        $route->view('/newsletter', 'pages.common.newsletter.index');
     }
 
     /**

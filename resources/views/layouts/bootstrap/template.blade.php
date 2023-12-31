@@ -1,9 +1,8 @@
-<?php register_path_for_layout_asset() ?>
-
 <!DOCTYPE html>
 <html>
 <head>
 	@yield('page_header')
+
 	<!-- Description -->
 	<title>{!! String1::if_empty($page_title, Config1::APP_TITLE, $page_title.' &raquo; '.Config1::APP_TITLE) !!}</title>
 	<meta name="description" content="{{ Config1::APP_DESCRIPTION }}">
@@ -15,10 +14,10 @@
 	<link rel="shortcut icon" href="{{ asset('favicon.ico') }}">
 	<link rel="icon" type="image/png" href="{{ asset('favicon.png') }}">
     <!-- Default Style -->
-    <link href="{{ shared_asset() }}/fonts/css/font-awesome.min.css" rel="stylesheet">
-    <link href="{{ shared_asset() }}/sweetalert2/sweetalert2.min.css" rel="stylesheet"/>
-	<link href="{{ shared_asset() }}/bootstrap/v4/bootstrap.min.css" rel="stylesheet" id="bootstrap-css">
-	<script src="{{ shared_asset() }}/jquery/js/jquery3.3.1.min.js" type="text/javascript"></script>
+    <link href="{{ asset('/default') }}/fonts/css/font-awesome.min.css" rel="stylesheet">
+    <link href="{{ asset('/default') }}/sweetalert2/sweetalert2.min.css" rel="stylesheet"/>
+	<link href="{{ asset('/default') }}/bootstrap/v4/bootstrap.min.css" rel="stylesheet" id="bootstrap-css">
+	<script src="{{ asset('/default') }}/jquery/js/jquery3.3.1.min.js" type="text/javascript"></script>
 
 	<!-- fonts -->
 	<link href="https://fonts.googleapis.com/css?family=Montserrat:300,400,800&display=swap" rel="stylesheet">
@@ -98,8 +97,8 @@
 
 
 	<!-- Default Script -->
-	<script src="{{ shared_asset() }}/sweetalert2/sweetalert2.min.js"></script>
-	<script src="{{ shared_asset() }}/bootstrap/v4/bootstrap.min.js"></script>
+	<script src="{{ asset('/default') }}/sweetalert2/sweetalert2.min.js"></script>
+	<script src="{{ asset('/default') }}/bootstrap/v4/bootstrap.min.js"></script>
 </body>
 <?php  if (Session1::isStatusSet()) echo Session1::popupStatus()->toSwalAlert(); ?>
 </html>

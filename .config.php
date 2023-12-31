@@ -4,14 +4,13 @@
  *
  * Framework : Ehex (https://github.com/ehexphp/ehex-framework)
  * Description : Simple, Clean and Comprehensive Framework
- * Author :  Samson Oyetola (hello@samsonoyetola.com)
- * Version : version 2.0
+ * Author :  Samson Oyetola (samson.oyetola@xamtax.com)
  *
  * This file contains the following configurations:
  *  - Global Environment Variable
  *  - App Life Cycle
  *  - Database/MySQL cofig
- *  - Mail and thirdparties config 
+ *  - Mail and thirdParties config
  * @package Ehex
  */
 
@@ -19,64 +18,59 @@
 
 
 
-
-
-
-
 class Config1{
 
-    // Database Settings
-    //public static $no_db = true;
-    const DB_DRIVER = 'mysql'; //sqlite //mysql
-    const DB_HOST= 'localhost';
-    const DB_NAME= 'project_ex';
-    const DB_USER = 'root';
-    const DB_PASSWORD = '';
+    /**
+     * Override Config base on the current hostName
+     * Retrieve with e.g env("DB_NAME") or getConfig("DB_NAME")
+     */
+    const ENVs = [
+        '.env'=>['http://localhost', 'https://myapp.local'],
+        '.prod.env'=>['https://myapp.com']
+    ];
 
-    // APP Information
+
+    /**
+     * Password Encryption Hash. Can generate a new one when you run Db1::help();
+     */
     const APP_KEY = 'base64:jxq0fX+1/CQEyvB1kl+xVvW97kvENMT';
+
+    /**
+     * Simply Application title
+     */
     const APP_TITLE ='Ehex (ex)';
+
+    /**
+     * Application title that can include html and css
+     */
     const APP_FANCY_TITLE = '<strong>Ehex</strong> <span>Framework</span>';
+
+    /**
+     * Website description
+     */
     const APP_DESCRIPTION = 'Powerful and Friendly Framework';
 
-    // Options
-    const DEBUG_MODE = true;
-    const DEBUG_IP = [];
-    const MAINTENANCE_MODE = false;
-    const MODELS_CLF_CALLABLE_LIST = ['*']; 
-    const ACCESS_CONTROL_ALLOW_ORIGINAL = ['*'];
-    const AUTO_PAGE_WRAPPER = true;    // RECOMMENDED for auto includes of Page1::start(), Page1::end() for every page and JQUERY.
+    /**
+     * Enable CLF Access to class functions.
+     */
+    const MODELS_CLF_CALLABLE_LIST=["*"];
 
-    // auto load
-    const INCLUDES_PATH = '__includes';
-    const ENABLE_INCLUDES_SHARED = true;
-    const EXCLUDE_CLASS = [];
+    /**
+     * Add JQUERY to every page automatically. It will add Page1::start(), Page1::end() for every page.
+     */
+    const AUTO_PAGE_WRAPPER = true;
 
-    // APP developer
-    const APP_DEVELOPER_NAME = 'Samson Oyetola';
-    const APP_DEVELOPER_EMAIL = 'hello@samsonoyetola.com';
-    const APP_DEVELOPER_WEBSITE = 'https://samsonoyetola.com';
+    /**
+     * By default, classes are auto-loaded ahead-of-time. However, you can specify classes to ignore
+     */
+    const EXCLUDE_AUTOLOAD_CLASS = [];
 
-    // Mail Settings
-    const MAIL_HOST = 'smtp.gmail.com'; //; smtp1.example.com; smtp2.example.com
-    const MAIL_SMTP_ENCRYPTION = 'tls';
-    const MAIL_EMAIL = '@gmail.com';
-    const MAIL_PASSWORD = '';
-    const MAIL_PORT= '587';
-    /*const MAIL_HOST = 'mail.inbata.com';
-    const MAIL_SMTP_ENCRYPTION = 'tls';
-    const MAIL_EMAIL = 'hello@inbata.com';
-    const MAIL_PASSWORD = '***';
-    const MAIL_PORT= '26';*/
-
-    // imgur
-    const IMGUR_CLIENT_ID = '9c85d34fc4a2ec9';
-    const IMGUR_CLIENT_SECRET = '2cc1a5c790ad8dc43fda840da25ea14f6966f1e8';
-
-
-
-
-
+    /**
+     * Developer company info. Optional
+     */
+    const APP_DEVELOPER_NAME = 'Ehex';
+    const APP_DEVELOPER_EMAIL = 'ehex.framework@xamtax.com';
+    const APP_DEVELOPER_WEBSITE = 'https://ehex.xamtax.com';
 
 
     /**
@@ -84,11 +78,21 @@ class Config1{
      * @param exRoute1 $route
      */
     static function onRoute($route) {
+        // Test Email Template
+        /*$route->get('/', function(){
+            echo view_make('pages.emails.verify', [
+                'url'=> Form1::callController(User::class.'@processVerifyAccount('.encode_data('hell@gmail.com').')'),
+                'content'=> "Hi, <br>Take control of yoe",
+            ]);
+        });
+        return;*/
+
+
 
         /**
          * Turn a view directory to route
          */
-        //$route->directory('pages.common');
+        // $route->directory('pages.common');
 
 
         /**
@@ -111,16 +115,17 @@ class Config1{
             'maintenance'=>'pages.common.maintenance_mode'
         ]);
 
+
     }
 
 
     /**
      * Route Passage
      *
-     * @param RouteRequest $req
+     * @param $req
      * @return bool
      */
-    static function onMiddleware(RouteRequest $req) {
+    static function onMiddleware($req) {
         return true;
     }
 
@@ -132,7 +137,7 @@ class Config1{
      * @return array (of shared variables)
      */
     static function onPageStart() {
-        return ['page_title'=>''];
+         return ['page_title'=>''];
     }
 
 
@@ -144,17 +149,17 @@ class Config1{
 
 
     /**
-     * Create, Alter or Destroy Database model here. 
+     * Create, Alter or Destroy Database model here.
      * Execute only when DEBUG_MODE is set to TRUE
      */
     static function onDebug(){
-       // Db1::tableCreateAll();
-         if(isset($_REQUEST['db_init'])) {
+        // Db1::tableCreateAll();
+        if(isset($_REQUEST['db_init'])) {
             //Db1::tableCreateAll();
             //$firstUser = User::find("user", "role");
             //if($firstUser) $firstUser->update(['role'=>'admin']);
         }
-        
+
     }
 
 
@@ -171,7 +176,7 @@ class Config1{
      * Execute when logout
      */
     static function onLogout() { }
-    
+
 
 
 
@@ -188,7 +193,7 @@ class Config1{
             'google_analytics'=>'UA-131446983-1',
             'jivo_livechat'=>'RR6Sdm1ShQ',
             'tawk_livechat'=>'5c40202cab5284048d0d52cd',
-            'file_manager_password'=>Config1::DB_PASSWORD
+            'file_manager_password'=>env('DB_PASSWORD')
         ][$key];
     }
 
