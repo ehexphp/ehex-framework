@@ -1,6 +1,11 @@
 
 ![Database Management](assets/images/app.png)
 
+## Creating a form
+In Ehex, creating a form could be as easy as.
+
+![Form Sample](assets/images/_media/form_sample1.png)
+
 # Ehex PHP Framework
 Flexible and Friendly Php Framework, Created with many features.
 
