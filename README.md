@@ -1,5 +1,10 @@
 
-![Database Management](assets/images/app.png)
+![Database Management](assets/images/app.png?v2)
+
+## Creating a form
+In Ehex, creating a form could be as easy as.
+
+![Form Sample](assets/images/_media/form_sample1.png?v2)
 
 # Ehex PHP Framework
 Flexible and Friendly Php Framework, Created with many features.
@@ -25,7 +30,7 @@ OR `php -S localhost:8081`
 ## Install new Plugin
 1. Add the plugin to require section (in your composer.json):
    e.g `"usmanhalalit/strana": "1.*@dev"`
-    them run `composer update`
+   them run `composer update`
 
 2. Or `composer require usmanhalalit/strana`
 
@@ -33,7 +38,7 @@ OR `php -S localhost:8081`
 To manage your database, setup database connection in your .env and
 append ?db_help to your URL e.g [http://localhost:8081?db_help](http://localhost:8081?db_help)
 
-![Database Management](assets/images/app-management.png)
+![Database Management](assets/images/app-management.png?v2)
 
 ## Ehex.
 is an Application Development Framework - a toolkit - for people who build web sites using PHP. Its goal is to enable you to develop projects much faster than you could if you were writing code from scratch, by providing a rich set of libraries for commonly needed tasks, as well as a simple interface and logical structure to access these libraries. EX lets you creatively focus on your project by minimizing the amount of code needed for a given task.
