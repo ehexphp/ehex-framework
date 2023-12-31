@@ -168,16 +168,16 @@
         },
         {
             "name": "ehexphp/core",
-            "version": "v1.0.1",
+            "version": "v1.0.2",
             "source": {
                 "type": "git",
                 "url": "https://github.com/ehexphp/core.git",
-                "reference": "e7d428afb9a75619db4ca837e5b34b59f29ef22d"
+                "reference": "37a8c10167a45cde5dba081f81ccc74519fc27e5"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/ehexphp/core/zipball/e7d428afb9a75619db4ca837e5b34b59f29ef22d",
-                "reference": "e7d428afb9a75619db4ca837e5b34b59f29ef22d",
+                "url": "https://api.github.com/repos/ehexphp/core/zipball/37a8c10167a45cde5dba081f81ccc74519fc27e5",
+                "reference": "37a8c10167a45cde5dba081f81ccc74519fc27e5",
                 "shasum": ""
             },
             "require": {
@@ -208,7 +208,7 @@
                 "issues": "https://github.com/ehexphp/ehex-framework/issues",
                 "source": "https://github.com/ehexphp/ehexcore"
             },
-            "time": "2023-12-31T01:38:09+00:00"
+            "time": "2023-12-31T19:29:41+00:00"
         },
         {
             "name": "filp/whoops",
