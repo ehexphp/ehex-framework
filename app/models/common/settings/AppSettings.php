@@ -1,5 +1,7 @@
 <?php
 
+
+
 /**
  * @backupGlobals disabled
  */
@@ -25,7 +27,7 @@ class AppSettings {
     static function getModelAndDatabase(){
         $buff = [];
         foreach (app_model_list(true, true) as $key=>$value)  $buff[ $key.' / '.$value ] ='['. $key.'] : '.$value.'';
-        return [Config1::DB_NAME => $buff];
+        return [env('DB_NAME') => $buff];
     }
 
     /**
@@ -52,6 +54,7 @@ class AppSettings {
 
 
     /**
+     * Todo: optimise
      * List All Assets Information
      * @return array
      */
@@ -61,22 +64,15 @@ class AppSettings {
             'Layout [App]'=>self::getFolderDataList(PATH_LAYOUTS),
         ];
         // If Shared is not in app, it means all shared resource assets are saved in app assets
-        if(String1::startsWith(Config1::INCLUDES_PATH, '../'))
-            $all = array_merge($all, [
-                'Plugin [Shared In Assets]'=>self::getFolderDataList(path_asset()."/shared/plugin_list/"),
-                'Layout [Shared In Assets]'=>self::getFolderDataList(path_asset()."/shared/layout_list/"), //array_map(function($path){  }, $getFolderList(path_asset()."/shared/layout_list/")),
-            ]);
-        else
-            $all = array_merge($all, [
-                'Plugin [Shared]'=>self::getFolderDataList(PATH_SHARED_RESOURCE.'plugins/'),
-                'Layout [Shared In Assets]'=>FileManager1::getDirectoriesFolders(PATH_SHARED_RESOURCE.'views/layouts/'),
-            ]);
         $all = array_merge($all, [
+            'Plugin [Shared]'=>self::getFolderDataList(PATH_SHARED_RESOURCE.'plugins/'),
+            'Layout [Shared In Assets]'=>FileManager1::getDirectoriesFolders(PATH_SHARED_RESOURCE.'views/layouts/'),
+        ]);
+
+        return array_merge($all, [
             'Assets [App]'=>self::getFolderDataList(path_asset()),
             'Assets [Shared]'=>FileManager1::getDirectoriesFolders(path_shared_asset()),
         ]);
-
-        return $all;
     }
 
 
@@ -114,7 +110,7 @@ class AppSettings {
      */
     static function deleteDirectory($path){
         $name = self::cleanFileName($path);
-        if(String1::contains('/shared/resources/', $path) && String1::startsWith(Config1::INCLUDES_PATH, '../')) return Session1::setStatus('Cannot Delete MultiSite Shared Assets', "Deleting $name is a Bad Idea!, We Found a MultiSite Configuration on this Site and therefore, You cannot delete Shared Resources because other website might depends on it. You can put a copy of Include/Shared folder in your Website to allow this operation", 'error');
+        if(String1::contains('/shared/resources/', $path)) return Session1::setStatus('Cannot Delete MultiSite Shared Assets', "Deleting $name is a Bad Idea!, We Found a MultiSite Configuration on this Site and therefore, You cannot delete Shared Resources because other website might depends on it. You can put a copy of Include/Shared folder in your Website to allow this operation", 'error');
         try{
             if(FileManager1::delete($path)) return Session1::setStatus('Deleted Successfully', "You have deleted $name Successfully ",'success');
             else throw new Exception("Failed to delete $name, Due to Some evil eye");

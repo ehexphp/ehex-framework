@@ -1,5 +1,11 @@
 <?php
 
+
+use vendor\ehex\easycore\assets\library\__autoload_class\image\ImgurFileManager;
+
+
+
+
 class Blog extends Model1 implements Model1ActionInterface {
 
     public static $COLUMN_UN_FILTER_LIST = ['body'];

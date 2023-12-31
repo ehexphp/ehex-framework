@@ -11,7 +11,7 @@
  *  - Global Environment Variable
  *  - App Life Cycle
  *  - Database/MySQL cofig
- *  - Mail and thirdparties config 
+ *  - Mail and thirdParties config
  * @package Ehex
  */
 
@@ -25,58 +25,36 @@
 
 class Config1{
 
-    // Database Settings
-    //public static $no_db = true;
-    const DB_DRIVER = 'mysql'; //sqlite //mysql
-    const DB_HOST= 'localhost';
-    const DB_NAME= 'project_ex';
-    const DB_USER = 'root';
-    const DB_PASSWORD = '';
+    /**
+     * Override Config base on the current hostName
+     * Retrieve with e.g env("DB_NAME") or getConfig("DB_NAME")
+     */
+    const ENVs = [
+        '.env'=>['https://sampletrade.local', 'http://localhost'],
+        '.prod.env'=>['https://oaktreefinances.com', 'https://test.oaktreefinances.com']
+    ];
+
 
     // APP Information
     const APP_KEY = 'base64:jxq0fX+1/CQEyvB1kl+xVvW97kvENMT';
-    const APP_TITLE ='Ehex (ex)';
-    const APP_FANCY_TITLE = '<strong>Ehex</strong> <span>Framework</span>';
-    const APP_DESCRIPTION = 'Powerful and Friendly Framework';
-
-    // Options
-    const DEBUG_MODE = true;
-    const DEBUG_IP = [];
-    const MAINTENANCE_MODE = false;
-    const MODELS_CLF_CALLABLE_LIST = ['*']; 
-    const ACCESS_CONTROL_ALLOW_ORIGINAL = ['*'];
-    const AUTO_PAGE_WRAPPER = true;    // RECOMMENDED for auto includes of Page1::start(), Page1::end() for every page and JQUERY.
+    const APP_TITLE ='OakTreeFinances';
+    const APP_FANCY_TITLE = '<strong class="text-light" style="font-weight: 800; font-size: 0.7em"> OAK TREE <img style="width: 45px" src="/assets/logo/45.gif" alt="logo" /> FINANCES </strong>';
+    const APP_DESCRIPTION = 'OakTreeFinances';
 
     // auto load
-    const INCLUDES_PATH = '__includes';
+    const MODELS_CLF_CALLABLE_LIST=["*"];
+    const AUTO_PAGE_WRAPPER = true;    // RECOMMENDED for auto includes of Page1::start(), Page1::end() for every page and JQUERY.
     const ENABLE_INCLUDES_SHARED = true;
     const EXCLUDE_CLASS = [];
 
     // APP developer
-    const APP_DEVELOPER_NAME = 'Samson Oyetola';
-    const APP_DEVELOPER_EMAIL = 'hello@samsonoyetola.com';
-    const APP_DEVELOPER_WEBSITE = 'https://samsonoyetola.com';
-
-    // Mail Settings
-    const MAIL_HOST = 'smtp.gmail.com'; //; smtp1.example.com; smtp2.example.com
-    const MAIL_SMTP_ENCRYPTION = 'tls';
-    const MAIL_EMAIL = '@gmail.com';
-    const MAIL_PASSWORD = '';
-    const MAIL_PORT= '587';
-    /*const MAIL_HOST = 'mail.inbata.com';
-    const MAIL_SMTP_ENCRYPTION = 'tls';
-    const MAIL_EMAIL = 'hello@inbata.com';
-    const MAIL_PASSWORD = '***';
-    const MAIL_PORT= '26';*/
+    const APP_DEVELOPER_NAME = 'iNetTravel';
+    const APP_DEVELOPER_EMAIL = 'contact@inettravel.ca';
+    const APP_DEVELOPER_WEBSITE = 'https://inettravel.ca';
 
     // imgur
     const IMGUR_CLIENT_ID = '9c85d34fc4a2ec9';
     const IMGUR_CLIENT_SECRET = '2cc1a5c790ad8dc43fda840da25ea14f6966f1e8';
-
-
-
-
-
 
 
     /**
@@ -84,32 +62,59 @@ class Config1{
      * @param exRoute1 $route
      */
     static function onRoute($route) {
+        // Test Email Template
+        /*$route->get('/', function(){
+            echo view_make('emails.verify', [
+                'url'=> Form1::callController(User::class.'@processVerifyAccount('.encode_data('hell@gmail.com').')'),
+                'content'=> "Hi, <br>Take control of yoe",
+            ]);
+        });*/
 
-        /**
-         * Turn a view directory to route
-         */
-        //$route->directory('pages.common');
+        $route->view('/', 'index');
+        $route->view('/tokenization', 'home_tokenization');
+        $route->view('/ai-trading', 'home_ai_trading');
+        $route->view('/401k-crypto-investment', 'home_401k_investment');
+        $route->view('/terms-and-conditions', 'terms_and_condition');
+        $route->view('/privacy-policy', 'privacy_policy');
+        $route->view('/about', 'about');
+        $route->view('/dashboard', 'dashboard');
+
+        $route->view('/admin', 'admin');
+
+        $route->view('/contact', 'contact');
+        $route->view('/login', 'login');
+        $route->view('/register', 'register');
+        $route->view('/profile', 'profile');
 
 
-        /**
-         * Home Page
-         */
-        $route->view('/', 'pages.homepage.index');
+        $route->view('/deposit', 'deposit');
+        $route->view('/withdraw', 'withdraw');
+        $route->view('/transactions/history', 'transactions');
 
+        $route->view('/investments/create', 'create_investment');
+        $route->view('/investments/transactions', 'investments');
+
+
+        $route->get('/logout', function(){
+            echo "redirecting...";
+            User::logout('/login');
+        });
 
         /**
          * Compile all model's route
          */
-        Dashboard::onRoute($route);
+        // Dashboard::onRoute($route);
 
         /**
          * For Dashboard route, Error 404 and Site Under-Construction
          */
         $route->fixed([
-            'dashboard_route'=>'dashboard',
-            'error404'=>'pages.common.error404',
-            'maintenance'=>'pages.common.maintenance_mode'
+            // 'dashboard_route'=>'dashboard',
+            // '/error404'=>'common/error404',
+            '/error404'=>'common.error404',
+            '/maintenance'=>'common.maintenance_mode'
         ]);
+
 
     }
 
@@ -117,10 +122,10 @@ class Config1{
     /**
      * Route Passage
      *
-     * @param RouteRequest $req
+     * @param $req
      * @return bool
      */
-    static function onMiddleware(RouteRequest $req) {
+    static function onMiddleware($req) {
         return true;
     }
 
@@ -132,7 +137,7 @@ class Config1{
      * @return array (of shared variables)
      */
     static function onPageStart() {
-        return ['page_title'=>''];
+         return ['page_title'=>''];
     }
 
 
@@ -144,17 +149,17 @@ class Config1{
 
 
     /**
-     * Create, Alter or Destroy Database model here. 
+     * Create, Alter or Destroy Database model here.
      * Execute only when DEBUG_MODE is set to TRUE
      */
     static function onDebug(){
-       // Db1::tableCreateAll();
-         if(isset($_REQUEST['db_init'])) {
+        // Db1::tableCreateAll();
+        if(isset($_REQUEST['db_init'])) {
             //Db1::tableCreateAll();
             //$firstUser = User::find("user", "role");
             //if($firstUser) $firstUser->update(['role'=>'admin']);
         }
-        
+
     }
 
 
@@ -171,7 +176,7 @@ class Config1{
      * Execute when logout
      */
     static function onLogout() { }
-    
+
 
 
 
@@ -188,7 +193,7 @@ class Config1{
             'google_analytics'=>'UA-131446983-1',
             'jivo_livechat'=>'RR6Sdm1ShQ',
             'tawk_livechat'=>'5c40202cab5284048d0d52cd',
-            'file_manager_password'=>Config1::DB_PASSWORD
+            'file_manager_password'=>env('DB_PASSWORD')
         ][$key];
     }
 

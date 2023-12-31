@@ -1,6 +1,10 @@
 <?php
 
 
+
+
+
+
 class Portfolio extends Model1 implements Model1ActionInterface {
 
     public $id = 0;

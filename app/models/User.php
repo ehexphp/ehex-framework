@@ -1,12 +1,14 @@
 <?php
 
+
+
 /**
  * @backupGlobals disabled
  */
 class User extends AuthModel1 implements Model1ActionInterface {
 
     // CLF config
-    public static $CLF_BYPASS_TOKEN_LIST = ['processVerifyAccount'];
+    public static $CLF_BYPASS_TOKEN_LIST = ['processVerifyAccount', 'sendVerificationMail'];
     //public static $CLF_CALLABLE_LIST = [];
 
 
@@ -25,6 +27,7 @@ class User extends AuthModel1 implements Model1ActionInterface {
 
     // Secondary Field
     public $status = 'inactive';
+    public $as_paid = false;
     public $role = 'user';
     public $zip_code = '';
     public $country = '';
@@ -53,5 +56,22 @@ class User extends AuthModel1 implements Model1ActionInterface {
 //    public $qq_user_id = '';
 //    public $wechat_user_id = '';
 //    public $douban_user_id = '';
+
+
+    // Custom Fields
+    public $account_balance = 0;
+
+
+
+
+
+    public function getApplication(){
+        $application = Application::find($this->id, "user_id");
+        return empty($application)? new Application(): $application;
+    }
+
+    public function getTotalBalance(){
+       return $this->account_balance + Investment::count("where user_id = '$this->id' ", ["sum(gain_amount) as data"], true);
+    }
 
 }

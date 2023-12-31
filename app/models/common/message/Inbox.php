@@ -1,6 +1,9 @@
 <?php
 
 
+
+
+
 class Inbox extends Model1 implements Model1ActionInterface {
 
     static $APP_CONFIG = [
