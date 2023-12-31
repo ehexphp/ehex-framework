@@ -12,13 +12,20 @@ Flexible and Friendly Php Framework, Created with many features.
 ## Documentation
 > Read Full Documentation now  [Documentation](https://ehexphp.github.io/ehex-docs/#/)  and Check out  [Api Documentation](https://ehexphp.github.io/ehex-docs-api/ ':include :type=iframe width=100% height=800px')
 
-## Installation
-> See Quick Start [Starting a new Project](https://ehexphp.github.io/ehex-docs/#/Starting%20a%20new%20Project)
 
-## Install packages
+## Installation
+Ehex Framework is available on [Packagist](https://packagist.org/packages/ehexphp/framework) (using semantic versioning), and installation via [Composer](https://getcomposer.org).
+```shell
+  composer create-project ehexphp/framework
+```
+OR run `git clone https://github.com/ehexphp/ehex-framework`
+
+install Libraries
 ```shell
   composer install
 ```
+> Also checkout Quick Start [Starting a new Project](https://ehexphp.github.io/ehex-docs/#/Starting%20a%20new%20Project)
+
 
 ## Start application
 ```shell
@@ -97,7 +104,8 @@ We would have love to make it work on lower version as well, but we strongly adv
 1. And More...
 
 ## License
-> Please see the license agreement. [License](https://github.com/ehexphp/ehex-framework/blob/master/LICENSE)
+This software is distributed under the [MIT](https://opensource.org/license/mit/) license. Please read [LICENSE](https://github.com/ehexphp/ehex-framework/blob/master/LICENSE) for information on the software availability and distribution.
+
 
 ## Resources
 - [User Guide](/) - Available
