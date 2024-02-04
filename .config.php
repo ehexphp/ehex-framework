@@ -29,12 +29,6 @@ class Config1{
         '.prod.env'=>['https://myapp.com']
     ];
 
-
-    /**
-     * Password Encryption Hash. Can generate a new one when you run Db1::help();
-     */
-    const APP_KEY = 'base64:jxq0fX+1/CQEyvB1kl+xVvW97kvENMT';
-
     /**
      * Simply Application title
      */
@@ -153,6 +147,7 @@ class Config1{
      * Execute only when DEBUG_MODE is set to TRUE
      */
     static function onDebug(){
+
         // Db1::tableCreateAll();
         if(isset($_REQUEST['db_init'])) {
             //Db1::tableCreateAll();

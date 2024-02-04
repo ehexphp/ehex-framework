@@ -44,7 +44,7 @@
                     <div class="card-body">
                         <h4><strong><i class="fa fa-warning text-danger" aria-hidden="true"></i> No Role</strong></h4><hr>
                         <h5><i class="fa fa-times-circle" aria-hidden="true"></i> Account has no role</h5>
-                        <p>Your Account is Restricted and cannot perform any additional function on this site. <br/>If you are a staff and you know you deserve a role, <a href="tel:">Please request now</a>.</p>
+                        <p>Your Account is Restricted and cannot perform any additional function on this site. <br/>To request for a role, <a href="mail:support@<?= Url1::extractHostName(Url1::getDomainName()) ?>">Please click here</a>.</p>
                     </div>
                 </div>
             </div>

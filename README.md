@@ -33,6 +33,8 @@ composer run-script start
 ```
 OR `php -S localhost:8081`
 
+## Auto Deploy to FTP Server
+open `.github/.workflows/main.yml` to configure your ftp details
 
 ## Install new Plugin
 1. Add the plugin to require section (in your composer.json):
