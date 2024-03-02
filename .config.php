@@ -72,6 +72,9 @@ class Config1{
      * @param exRoute1 $route
      */
     static function onRoute($route) {
+
+
+
         // Test Email Template
         /*$route->get('/', function(){
             echo view_make('pages.emails.verify', [

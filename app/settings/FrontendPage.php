@@ -1,6 +1,7 @@
 <?php
 
 
+
 /**
  * A Customisable Settings for every page. This model can contain the site
  * social network handles, email addresses, site phone numbers and so on.
@@ -15,7 +16,7 @@
  * You can edit this to suit your need.
  * Class FrontendPage
  */
-class FrontendPage  extends Model1 implements Model1PageInterface {
+class FrontendPage  extends \Model1 implements \Model1PageInterface {
 
     public $founder = 'XIIP';
     public $about_company = Config1::APP_FANCY_TITLE.'<p>'.Config1::APP_DESCRIPTION.'</p>';

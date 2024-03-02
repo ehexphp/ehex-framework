@@ -1,6 +1,7 @@
 <?php
 
 
+
 /**
  * This is a dynamic settings class for your site. if you are using the default dashboard and you want everything to be automatic.
  * It generate the settings to use for dashboard(e.g Dashboard Sidebar menu, And Knows when menu is active, And for admin Page, e.t.c).

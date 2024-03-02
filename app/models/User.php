@@ -1,9 +1,11 @@
 <?php
 
+
+
 /**
  * @backupGlobals disabled
  */
-class User extends AuthModel1 implements Model1ActionInterface {
+class User extends \AuthModel1 implements \Model1ActionInterface {
 
     // CLF config
     public static $CLF_BYPASS_TOKEN_LIST = ['processVerifyAccount'];
