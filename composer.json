@@ -15,7 +15,7 @@
         }
     ],
     "require": {
-        "ehexphp/core": "^v1.0.19",
+        "ehexphp/core": "^1.0.57",
         "jenssegers/blade": "^2.0",
         "phpmailer/phpmailer": "^6.9",
         "usmanhalalit/strana": "1.*@dev",
